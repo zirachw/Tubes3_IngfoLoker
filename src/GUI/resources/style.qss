@@ -1,0 +1,146 @@
+/* Global window */
+QMainWindow#MainWindow,
+QWidget#centralWidget {
+  background-color: #F4F4F9;
+  color: #333333;
+}
+
+/* SearchBar */
+#searchBar {
+  background: transparent;
+}
+#searchBar QLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 4px;
+}
+#searchBar QLineEdit,
+#searchBar QSpinBox {
+  background: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  border-radius: 12px;
+  padding: 6px 8px;
+  font-size: 14px;
+  color: #2C2C2C;
+}
+#searchBar QPushButton {
+  background: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #2C2C2C;
+}
+#searchBar QPushButton:hover {
+  background: #E9ECEF;
+}
+#searchBar QPushButton:checked {
+  background: #007BFF;
+  color: #FFFFFF;
+  border-color: #0056B3;
+}
+
+/* ResultsArea */
+#resultsArea {
+  background-color: #F4F4F9;
+}
+#resultsArea QLabel#exactLabel,
+#resultsArea QLabel#fuzzyLabel {
+  font-size: 16px;
+  font-weight: 600;
+  color: #555555;
+}
+#resultsArea QPushButton {
+  background: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  border-radius: 12px;
+  padding: 6px 10px;
+  color: #2C2C2C;
+}
+#resultsArea QPushButton:disabled {
+  color: #AAAAAA;
+  border-color: #E9ECEF;
+}
+#resultsArea QLabel#pageLabel {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 8px;
+  color: #333333;
+}
+
+/* ResultCard */
+#resultCard {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+}
+#resultCard QLabel {
+  margin: 0;
+  padding: 0;
+  color: #2C2C2C;
+  font-size: 12px;
+}
+#resultCard QLabel#nameLabel {
+  font-size: 16px;
+  font-weight: 600;
+}
+#resultCard QLabel#countLabel {
+  font-size: 12px;
+  color: #555555;
+}
+#resultCard QLabel#matchedLabel {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+#resultCard QLabel#matchList {
+  font-size: 12px;
+  color: #2C2C2C;
+}
+#resultCard QPushButton#summaryButton,
+#resultCard QPushButton#viewCVButton {
+  background-color: #6c757d;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+#resultCard QPushButton#summaryButton:hover,
+#resultCard QPushButton#viewCVButton:hover {
+  background-color: #5a6268;
+}
+#resultCard QPushButton#summaryButton:pressed,
+#resultCard QPushButton#viewCVButton:pressed {
+  background-color: #4e555b;
+}
+
+/* === Pagination === */
+#pagination {
+  background: transparent;
+}
+
+#pagination QPushButton {
+  background-color: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: #2C2C2C;
+}
+
+#pagination QPushButton:disabled {
+  color: #AAAAAA;
+  border-color: #E9ECEF;
+}
+
+#pagination QLabel#paginationLabel {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 8px;
+  color: #333333;
+}
+#infoLabel {
+  font-size: 14px;
+  color: #555555;
+  padding: 4px 0;
+}
