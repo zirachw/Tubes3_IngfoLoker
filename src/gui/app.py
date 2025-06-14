@@ -25,5 +25,5 @@ class App:
         window.show()
         
         exit_code = app.exec()
-        self.state.end()
+        # self.state.end()
         sys.exit(exit_code)

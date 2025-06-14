@@ -15,31 +15,26 @@ class MainController:
         self.app_state = app_state
 
     def search(self, keywords, algorithm, top_n):
-        print(keywords)
         
         Detail = namedtuple("Detail", ["id", "name", "matches"])
 
-        # extracted_texts = DataManager.get_extracted_texts()
-        extracted_texts = [{1: "teks A A"}, {2: "teks B"}] # masih dummy
+        extracted_texts = self.app_state.data_manager.get_extracted_texts("clean")
+        # extracted_texts = {1: "teks A A", 2: "teks B"} # masih dummy
         dummy_exact = []
 
-        for entry in extracted_texts:
-            for detail_id, text in entry.items():
-                matches = {}
-                for keyword in keywords:
-                    print("Ini keyword",keyword)
-                    kmp = KMP(text, keyword)
-                    res, _ = kmp.search()
-                    if res:
-                        matches[keyword] = res
-                        print(res)
-                if matches:
-                    dummy_exact.append(Detail(
-                        id=detail_id,
-                        name=f"Detail {detail_id}",
-                        matches=matches
-                    ))
-
+        for detail_id, text in extracted_texts.items():
+            matches = {}
+            for keyword in keywords:
+                kmp = KMP(text, keyword)
+                res, _ = kmp.search()
+                if res:
+                    matches[keyword] = res
+            if matches:
+                dummy_exact.append(Detail(
+                    id=detail_id,
+                    name=f"Detail {detail_id}",
+                    matches=matches
+                ))
 
         dummy_fuzzy = [
             Detail(4, "Charlie", {"Java": 1, "Javscript": 1})
