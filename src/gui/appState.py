@@ -4,6 +4,7 @@ from src.db.encryption import EncryptionManager
 from src.utils.seeder import ApplicantSeeder
 from src.db.manager import DataManager
 from src.crypto.FF3 import FF3Cipher
+from src.utils.regex import Summary
 
 class AppState:
     """Main state class that orchestrates the ATS setup workflow."""
@@ -51,6 +52,12 @@ class AppState:
                 print(f"[Log] - Extracted text for detail ID {detail_id}: {len(text)} characters")
 
             print("[Log] - All operations completed successfully!")
+
+            ## TODO: Implement the regex summary extraction
+            extracted_raw_texts = Summary.generate(self.data_manager.get_extracted_texts('raw'))
+            self.data_manager.extracted_raw_texts = extracted_raw_texts
+
+            Summary.export_to_json(extracted_raw_texts, os.path.join(self.data_folder, 'summary.json'))
 
         except Exception as e:
             print(f"[Error] - During setup: {e}")
