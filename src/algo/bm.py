@@ -1,5 +1,3 @@
-map = {}
-
 def find_keys(text: str):
     keys = []
     for i in range(len(text)):
@@ -24,25 +22,25 @@ def boyer_moore(text:str, pattern: str, last_occurence):
 
     i = 0
     count = 0
-
-    pergeseran = 0
     found_at_pos = 0
-    while(i < len(text)):
+    while(i + len(pattern) <= len(text)):
         j = len(pattern) - 1
         while(j >= 0):
             pos = i + j
+            # print(f" pos: {pos}, i: {i}, j: {j}")
             if (text[pos] != pattern[j]):
                 to_be_aligned = last_occurence[text[pos]]
                 if (to_be_aligned == -1): # kalo gaada di pattern
                     pergeseran = len(pattern)
                 elif (to_be_aligned < j): # kalo bisa digeser
-                    pergeseran = len(pattern)- 1 - to_be_aligned
+                    pergeseran = len(pattern) - 1 - to_be_aligned
                 elif (to_be_aligned > j): # kalo gabisa digeser
                     pergeseran = 1
                 break
             j -= 1
 
         if j == -1:
+            print(i)
             found_at_pos = i
             count += 1
             pergeseran = len(pattern)
@@ -51,10 +49,10 @@ def boyer_moore(text:str, pattern: str, last_occurence):
 
     return count, found_at_pos
 
-text = "a pattern matching algorithm"
-pattern = "rithm"
-keys = find_keys(text)
-last_occurence = generate_last_occurence(pattern, keys)
-count, found_at_pos = boyer_moore(text,pattern,last_occurence)
+def search_using_bm(text: str, pattern: str):
+    keys = find_keys(text)
+    last_occurence = generate_last_occurence(pattern, keys)
+    count, found_at_pos = boyer_moore(text,pattern,last_occurence)
+    return count, found_at_pos
 
-print(f"{count} {found_at_pos}")
+

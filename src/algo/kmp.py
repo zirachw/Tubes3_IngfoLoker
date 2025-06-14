@@ -2,6 +2,7 @@ def generate_border_function(pattern: str):
     border_function = []
     for i in range(1,len(pattern)):
         border_function.append(search_match(pattern, i))
+    border_function.append(0)
     return border_function
 
 def generate_prefixes(text):
@@ -48,6 +49,7 @@ def kmp(text: str, pattern:str, border_function):
         if pergeseran <= 0: pergeseran = 1
 
         if j == len(pattern):
+            print(i)
             found = i
             count += 1
             pergeseran = len(pattern)
@@ -56,9 +58,8 @@ def kmp(text: str, pattern:str, border_function):
 
     return count, found
 
-text = "abacaabaccabacabaabb"
-pattern = "abacab"
-border_function = generate_border_function(pattern)
-border_function.append(0)
-res, found_at_pos = kmp(text, pattern, border_function)
-print(f"{res} {found_at_pos}")
+def search_using_kmp(text:str, pattern:str):
+    border_function = generate_border_function(pattern)
+    res, found_at_pos = kmp(text, pattern, border_function)
+    return res, found_at_pos
+
