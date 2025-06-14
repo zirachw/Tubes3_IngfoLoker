@@ -45,6 +45,12 @@ class Main:
                 print("[Log] - Encryption disabled - data remains in raw format")
 
             print("[Log] - ATS setup completed successfully!")
+
+            texts = DataManager.get_extracted_texts()
+
+            # Returns list of strings, each containing one txt file's content
+            for i, content in enumerate(texts):
+                print(f"File {i+1}: {len(content)} characters")
             
         except Exception as e:
             print(f"[Error] - During setup: {e}")

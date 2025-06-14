@@ -181,3 +181,38 @@ class DataManager:
             shutil.rmtree(temp_dir)
             Path("temp").rmdir()
             print("[Log] - Removed temp directory")
+
+    @staticmethod
+    def get_extracted_texts() -> None:
+        """Get all extracted text in data/raw folder"""
+
+        txt_path = Path("temp/raw")
+        extracted_texts = []
+
+        txt_files = list(txt_path.glob("*.txt"))
+
+        if not txt_path.exists():
+            print("[Warning] - temp/raw directory does not exist")
+            return extracted_texts
+        
+        txt_files = list(txt_path.glob("*.txt"))
+        
+        if not txt_files:
+            print("[Warning] - No txt files found in temp/raw")
+            return extracted_texts
+        
+        print(f"[Log] - Found {len(txt_files)} txt files in temp/raw")
+        
+        for txt_file in txt_files:
+            try:
+                with open(txt_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    extracted_texts.append(content)
+                    print(f"[Log] - Read {txt_file.name} ({len(content)} characters)")
+                    
+            except Exception as e:
+                print(f"[Error] - Reading {txt_file.name}: {e}")
+                extracted_texts.append("")  # Add empty string for failed reads
+        
+        print(f"[Log] - Successfully extracted {len(extracted_texts)} text contents")
+        return extracted_texts
