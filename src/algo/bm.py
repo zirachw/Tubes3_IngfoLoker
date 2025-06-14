@@ -31,7 +31,7 @@ def boyer_moore(text:str, pattern: str, last_occurence):
             if (text[pos] != pattern[j]):
                 to_be_aligned = last_occurence[text[pos]]
                 if (to_be_aligned == -1): # kalo gaada di pattern
-                    pergeseran = len(pattern)
+                    pergeseran = len(pattern) - 1
                 elif (to_be_aligned < j): # kalo bisa digeser
                     pergeseran = len(pattern) - 1 - to_be_aligned
                 elif (to_be_aligned > j): # kalo gabisa digeser
