@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
     QWidget, QLabel, QLineEdit,
-    QPushButton, QSpinBox,
+    QPushButton, QSpinBox, QAbstractSpinBox,
     QHBoxLayout, QVBoxLayout, QButtonGroup
 )
 from PyQt6.QtCore   import Qt, pyqtSignal
@@ -47,6 +47,7 @@ class SearchBar(QWidget):
         self.top_n = QSpinBox()
         self.top_n.setRange(1, 100)
         self.top_n.setValue(5)
+        self.top_n.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.UpDownArrows)
         row.addWidget(self.top_n)
 
         self.btn_search = QPushButton("Search")

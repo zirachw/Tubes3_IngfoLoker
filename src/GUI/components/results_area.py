@@ -14,10 +14,11 @@ class ResultsArea(QWidget):
         self.setObjectName("resultsArea")
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
 
-        self.page_size     = 8
+        self.page_size     = 10
         self.current_page  = 1
-        self.exact_results = []
-        self.fuzzy_results = []
+        self.results = []
+        self.exact_ms      = 0
+        self.fuzzy_ms      = 0
 
         self._build_ui()
 
@@ -26,83 +27,110 @@ class ResultsArea(QWidget):
         vlay.setSpacing(12)
         vlay.setContentsMargins(0,0,0,0)
 
-        # Header
-        hdr = QHBoxLayout()
-        self.lbl_exact = QLabel("Exact Match")
-        self.lbl_exact.setObjectName("exactLabel")
-        self.lbl_fuzzy = QLabel("Fuzzy Match")
-        self.lbl_fuzzy.setObjectName("fuzzyLabel")
-        hdr.addWidget(self.lbl_exact)
-        hdr.addStretch()
-        hdr.addWidget(self.lbl_fuzzy)
-        vlay.addLayout(hdr)
+        # — Title “Results:” —
+        self.title_label = QLabel("Results:")
+        self.title_label.setObjectName("resultsTitle")
+        self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        vlay.addWidget(self.title_label)
 
-        # Grid (4 cols × 2 rows)
+        # — Info label: “Exact Matches: X CVs scanned in Y ms” —
+        info_row = QHBoxLayout()
+        info_row.setContentsMargins(0,0,0,0)
+
+        self.infoExact = QLabel()
+        self.infoExact.setObjectName("infoExact")
+        info_row.addWidget(self.infoExact, alignment=Qt.AlignmentFlag.AlignLeft)
+
+        info_row.addStretch()
+
+        self.infoFuzzy = QLabel()
+        self.infoFuzzy.setObjectName("infoFuzzy")
+        info_row.addWidget(self.infoFuzzy, alignment=Qt.AlignmentFlag.AlignRight)
+
+        vlay.addLayout(info_row)
+        
         self.grid = QGridLayout()
         self.grid.setContentsMargins(0,0,0,0)
-        self.grid.setSpacing(16)
-        vlay.addLayout(self.grid)
+        self.grid.setHorizontalSpacing(16)
+        self.grid.setVerticalSpacing(16)
+
         hgrid = QHBoxLayout()
         hgrid.setContentsMargins(0,0,0,0)
-        hgrid.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        hgrid.addLayout(self.grid)
+        hgrid.addStretch()             
+        hgrid.addLayout(self.grid)      
+        hgrid.addStretch()
         vlay.addLayout(hgrid)
 
         vlay.addStretch()
 
         bottom = QHBoxLayout()
         bottom.setContentsMargins(0,0,0,0)
-        bottom.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.info_label = QLabel("")
-        self.info_label.setObjectName("infoLabel")
-        bottom.addWidget(self.info_label)
+        self.showing_label = QLabel()
+        self.showing_label.setObjectName("showingLabel")
+        bottom.addWidget(self.showing_label, alignment=Qt.AlignmentFlag.AlignLeft)
+
         bottom.addStretch()
 
         self.pagination = Pagination()
         self.pagination.pageChanged.connect(self._on_page_changed)
-        bottom.addWidget(self.pagination)
+        bottom.addWidget(self.pagination, alignment=Qt.AlignmentFlag.AlignRight)
 
         vlay.addLayout(bottom)
 
         self.clear()
 
     def clear(self):
-        # remove old cards
         for i in reversed(range(self.grid.count())):
             w = self.grid.itemAt(i).widget()
             if w:
                 w.setParent(None)
-        self.lbl_fuzzy.hide()
-        self.info_label.hide()
+        self.title_label.hide()
+        self.infoExact.hide()
+        self.infoFuzzy.hide()
+        self.showing_label.hide()
         self.pagination.hide()
 
-    def show_results(self, exact: list, fuzzy: list):
-        self.exact_results = exact
-        self.fuzzy_results = fuzzy
-        self.current_page  = 1
+    def show_results(self, results: list, exact_ms: int, fuzzy_ms: int):
+            """
+            Display either Exact or Fuzzy results:
+            - `results`: list of Applicant to show in cards
+            - `exact_ms`: execution time for exact (0 if not used)
+            - `fuzzy_ms`: execution time for fuzzy (0 if not used)
+            """
+            self.clear()
+            self._results  = results
+            self._exact_ms = exact_ms
+            self._fuzzy_ms = fuzzy_ms
+            self.current_page = 1
 
-        if exact:
-            self.lbl_exact.show()
-            self.lbl_fuzzy.hide()
-        else:
-            self.lbl_exact.hide()
-            if fuzzy:
-                self.lbl_fuzzy.show()
+            self.title_label.show()
+            total = len(results)
+            self.infoExact.setText(f"Exact Matches: {total} CVs scanned in {exact_ms} ms")
+            self.infoExact.show()
 
-        self._refresh()
+            if fuzzy_ms:
+                self.infoFuzzy.setText(f"Fuzzy Matches: {total} CVs scanned in {fuzzy_ms} ms")
+                self.infoFuzzy.show()
+            else:
+                self.infoFuzzy.hide()
+
+            self._refresh()
 
     def _refresh(self):
-        self.clear()
-        data  = self.exact_results or self.fuzzy_results
+        for i in reversed(range(self.grid.count())):
+            w = self.grid.itemAt(i).widget()
+            if w:
+                w.setParent(None)
+
+        data  = self._results
         total = len(data)
         pages = (total + self.page_size - 1) // self.page_size
         start = (self.current_page - 1) * self.page_size
         sub   = data[start : start + self.page_size]
 
-        # add cards
         for idx, appl in enumerate(sub):
-            r, c = divmod(idx, 4)
+            r, c = divmod(idx, 5)
             card = ResultCard(appl)
             card.summaryRequested.connect(self.summaryRequested)
             card.viewCvRequested.connect(self.viewCvRequested)
@@ -111,15 +139,14 @@ class ResultsArea(QWidget):
         if total:
             first = start + 1
             last  = start + len(sub)
-            self.info_label.setText(f"Showing {first}–{last} of {total}")
+            self.showing_label.setText(f"Showing {first}–{last} of {total}")
         else:
-            self.info_label.setText("No results")
-        self.info_label.show()
+            self.showing_label.setText("No results")
+        self.showing_label.show()
 
-        # update and show pagination
         self.pagination.setPage(self.current_page, pages)
         self.pagination.show()
 
-    def _on_page_changed(self, new_page: int):
-        self.current_page = new_page
+    def _on_page_changed(self, page: int):
+        self.current_page = page
         self._refresh()
