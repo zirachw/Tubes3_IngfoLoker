@@ -1,8 +1,10 @@
 from collections import namedtuple
 import os
-from src.utils.data import DataManager
+from src.db.manager import DataManager
 from src.algo.kmp import KMP
 from src.gui.components.pdf_viewer import PdfViewer
+from PyQt6.QtGui     import QDesktopServices
+from PyQt6.QtCore    import QUrl
 
 class MainController:
     def __init__(self, results_area, parent):
@@ -55,19 +57,14 @@ class MainController:
     def open_cv(self, applicant_id: int):
         print(f"Open CV for ID {applicant_id}")
         pdf_map = {
-            1: "data/Tucil3_13523045.pdf",
-            2: "data/Tucil3_13523045.pdf",
+            1: "data/pbo2.pdf",
+            2: "data/aland_cv.pdf",
         }
         path = pdf_map.get(applicant_id)
-        print(f"This is path: {path}")
-        if not path:
-            print(f"[Error] Tidak ada mapping PDF untuk ID {applicant_id}")
+        if not path or not os.path.isfile(path):
+            print(f"[Error] PDF untuk ID {applicant_id} tidak ditemukan: {path}")
             return
 
         abs_path = os.path.abspath(path)
-        if not os.path.isfile(abs_path):
-            print(f"[Error] File PDF tidak ditemukan: {abs_path}")
-            return
-
-        dlg = PdfViewer(abs_path, self.parent)
-        dlg.exec()
+        url = QUrl.fromLocalFile(abs_path)
+        QDesktopServices.openUrl(url)
