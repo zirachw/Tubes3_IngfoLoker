@@ -91,53 +91,73 @@ class DataManager:
         Creates temporary text files with filtered content and populates roles list.
         """
 
-        temp_dir = Path("temp/raw")
+        temp_dir = Path("temp")
+        raw_dir = Path("temp/raw")
+        clean_dir = Path("temp/clean")
     
         if temp_dir.exists():
             shutil.rmtree(temp_dir)
         
-        temp_dir.mkdir(parents=True, exist_ok=True)
+        raw_dir.mkdir(parents=True, exist_ok=True)
+        clean_dir.mkdir(parents=True, exist_ok=True)
+        
+        print(f"[Log] - Created directories: {raw_dir.absolute()} and {clean_dir.absolute()}")
+        
         data_path = Path(self.data_folder)
-
         if not data_path.exists():
             print("[Error] - Data folder does not exist")
             return
-
+            
         if not self.pdf_files:
             print("[Error] - No PDF files found")
             return
         
         print(f"[Log] - Found {len(self.pdf_files)} PDF files")
-
+        
         for pdf_file in self.pdf_files:
             pdf_path = data_path / pdf_file
-
+            
             try:
                 with fitz.open(pdf_path) as doc:
                     full_text = ""
                     for page in doc:
                         full_text += page.get_text()
-
+                    
                     role_display = self.extract_first_line_role(full_text)
                     self.roles.append(role_display)
+                    
                     filtered_text = self.filter_text(full_text)
 
                 pdf_name = Path(pdf_file).stem
-                output_file = temp_dir / f"{pdf_name}.txt"
+                raw_output = raw_dir / f"{pdf_name}.txt"
+                clean_output = clean_dir / f"{pdf_name}.txt"
                 
                 try:
-                    with open(output_file, 'w', encoding='utf-8') as f:
-                        f.write(filtered_text)
-                    print(f"[Log] - Extracted {pdf_file} -> {pdf_name}.txt")
-
+                    with open(raw_output, 'w', encoding='utf-8') as f:
+                        f.write(full_text)
+                    print(f"[Log] - Saved raw text: {pdf_file} -> raw/{pdf_name}.txt ({len(full_text)} chars)")
                 except Exception as file_error:
-                    print(f"[Error] - Saving {output_file}: {file_error}")
+                    print(f"[Error] - Saving raw text {raw_output}: {file_error}")
+                
+                try:
+                    with open(clean_output, 'w', encoding='utf-8') as f:
+                        f.write(filtered_text)
+                    print(f"[Log] - Saved clean text: {pdf_file} -> clean/{pdf_name}.txt ({len(filtered_text)} chars)")
+                except Exception as file_error:
+                    print(f"[Error] - Saving clean text {clean_output}: {file_error}")
                 
             except Exception as e:
                 print(f"[Error] - Extracting {pdf_file}: {e}")
                 self.roles.append("error")
 
-    def bind_pdf(self) -> None:
+        raw_files = list(raw_dir.glob("*.txt"))
+        clean_files = list(clean_dir.glob("*.txt"))
+        print(f"[Log] - Extraction complete: {len(raw_files)} raw files, {len(clean_files)} clean files")
+        print(f"[Log] - Extracted {len(self.roles)} roles: {self.roles}")
+        print(f"[Log] - Raw files location: {raw_dir.absolute()}")
+        print(f"[Log] - Clean files location: {clean_dir.absolute()}")
+
+    def bind_pdf(self):
         """Bind extracted PDF files to random applicants in database.
         
         Creates ApplicationDetail records linking PDFs to applicants with extracted roles.
@@ -173,35 +193,42 @@ class DataManager:
             full_name = f"{applicant['first_name']} {applicant['last_name']}"
             print(f"[Log] - Bound {pdf_file} (role: '{role}') to {full_name} (ID: {applicant['applicant_id']})")
 
-    def clear_temp(self) -> None:
+    def clear_temp(self):
         """Remove temporary extraction directory and all contents."""
 
-        temp_dir = Path("temp/raw")
+        temp_dir = Path("temp")
         if temp_dir.exists():
             shutil.rmtree(temp_dir)
-            Path("temp").rmdir()
-            print("[Log] - Removed temp directory")
+            print("[Log] - Cleared temporary files (temp/ directory)")
 
     @staticmethod
-    def get_extracted_texts() -> None:
-        """Get all extracted text in data/raw folder"""
+    def get_extracted_texts(text_type: str = "clean") -> List[str]:
+        """Get all extracted text content from temp directory.
+        
+        Args:
+            text_type (str): Type of text to retrieve - "raw" or "clean" (default: "clean")
+            
+        Returns:
+            List[str]: List containing the content of each txt file
+        """
 
-        txt_path = Path("temp/raw")
+        if text_type not in ["raw", "clean"]:
+            raise ValueError("text_type must be 'raw' or 'clean'")
+            
+        txt_path = Path(f"temp/{text_type}")
         extracted_texts = []
-
-        txt_files = list(txt_path.glob("*.txt"))
-
+        
         if not txt_path.exists():
-            print("[Warning] - temp/raw directory does not exist")
+            print(f"[Warning] - temp/{text_type} directory does not exist")
             return extracted_texts
         
         txt_files = list(txt_path.glob("*.txt"))
         
         if not txt_files:
-            print("[Warning] - No txt files found in temp/raw")
+            print(f"[Warning] - No txt files found in temp/{text_type}")
             return extracted_texts
         
-        print(f"[Log] - Found {len(txt_files)} txt files in temp/raw")
+        print(f"[Log] - Found {len(txt_files)} txt files in temp/{text_type}")
         
         for txt_file in txt_files:
             try:
@@ -212,7 +239,7 @@ class DataManager:
                     
             except Exception as e:
                 print(f"[Error] - Reading {txt_file.name}: {e}")
-                extracted_texts.append("")  # Add empty string for failed reads
+                extracted_texts.append("")
         
-        print(f"[Log] - Successfully extracted {len(extracted_texts)} text contents")
+        print(f"[Log] - Successfully extracted {len(extracted_texts)} {text_type} text contents")
         return extracted_texts
