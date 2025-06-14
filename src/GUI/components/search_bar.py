@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore   import Qt, pyqtSignal
 
 class SearchBar(QWidget):
-    searchRequested = pyqtSignal(str, str, int)
+    searchRequested = pyqtSignal(list, str, int)
 
     def __init__(self):
         super().__init__()
@@ -57,7 +57,8 @@ class SearchBar(QWidget):
         lay.addLayout(row)
 
     def _on_search(self):
-        kws = self.input.text().strip()
+        raw_kws = self.input.text().strip()
+        kws = [k.strip() for k in raw_kws.split(',') if k.strip()]
         if self.btn_kmp.isChecked():
             alg = "KMP"
         elif self.btn_bm.isChecked():
