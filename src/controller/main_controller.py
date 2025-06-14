@@ -1,14 +1,18 @@
 from collections import namedtuple
 import os
+
 from src.db.manager import DataManager
 from src.algo.kmp import KMP
+from src.gui.app import AppState
+
 from PyQt6.QtGui     import QDesktopServices
 from PyQt6.QtCore    import QUrl
 
 class MainController:
-    def __init__(self, results_area, parent):
+    def __init__(self, parent, results_area, app_state: AppState):
         self.results_area = results_area
         self.parent = parent
+        self.app_state = app_state
 
     def search(self, keywords, algorithm, top_n):
         print(keywords)

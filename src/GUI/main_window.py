@@ -1,12 +1,18 @@
 from PyQt6.QtWidgets import QMainWindow, QApplication, QLabel, QWidget, QVBoxLayout
 from PyQt6.QtCore import Qt
+
+from src.gui.appState import AppState
 from src.gui.components.search_bar import SearchBar
 from src.gui.components.results_area import ResultsArea
 from src.controller.main_controller import MainController
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    """Main application window that contains the search bar and results area."""
+
+    def __init__(self, app_state: AppState):
         super().__init__()
+
+        self.app_state = app_state
         self.setObjectName("MainWindow")
         self.setWindowTitle("IngfoLoker - Job Applicant Search")
 
@@ -33,7 +39,7 @@ class MainWindow(QMainWindow):
         self.results_area.setObjectName("resultsArea")
         vlay.addWidget(self.results_area)
 
-        self.controller = MainController(self.results_area, self)
+        self.controller = MainController(self, self.results_area, self.app_state)
 
         self.search_bar.searchRequested.connect(self.controller.search)
         self.results_area.summaryRequested.connect(self.controller.show_summary)
