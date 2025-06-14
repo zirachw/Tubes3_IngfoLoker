@@ -1,27 +1,25 @@
-def lev(mat, i:int , j:int , a:int, b:int):
-    mat[i][j] = min(mat[i-1][j] + 1, mat[i][j-1] + 1, mat[i-1][j-1] + (1 if a[j-1] != b[i-1] else  0))
-    return mat
-    
+class Levenshtein:
+    def __init__(self, a: str, b: str):
+        self.a = a
+        self.b = b
+        self.mat = [[0 for _ in range(len(a) + 1)] for _ in range(len(b) + 1)]
 
-def levenshtein_distance(a:str, b: str) -> int:
+    def lev(self, i: int, j: int):
+        self.mat[i][j] = min(
+            self.mat[i - 1][j] + 1,
+            self.mat[i][j - 1] + 1,
+            self.mat[i - 1][j - 1] + (1 if self.a[j - 1] != self.b[i - 1] else 0)
+        )
 
-    mat = [[0 for i in range(len(a)+1)] for j in range(len(b)+1)]
+    def compute(self) -> int:
+        for col in range(len(self.a) + 1):
+            self.mat[0][col] = col
 
-    for col in range(len(a)+1):
-        mat[0][col] = col
+        for row in range(len(self.b) + 1):
+            self.mat[row][0] = row
 
-    for row in range(len(b)+1):
-        mat[row][0] = row
+        for row in range(1, len(self.b) + 1):
+            for col in range(1, len(self.a) + 1):
+                self.lev(row, col)
 
-
-    for row in range(1,len(b)+1):
-        for col in range(1,len(a)+1):
-            mat = lev(mat,row,col,a,b)
-
-    # for row in range(len(b)+1): # testing doang
-    #     for col in range(len(a)+1):
-    #         print(mat[row][col], end="")
-    #     print("")
-
-    return mat[len(b)][len(a)]
-
+        return self.mat[len(self.b)][len(self.a)]
