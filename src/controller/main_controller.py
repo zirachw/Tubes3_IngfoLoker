@@ -3,7 +3,7 @@ import os
 
 from src.db.manager import DataManager
 from src.algo.kmp import KMP
-from src.gui.app import AppState
+from src.gui.appState import AppState
 
 from PyQt6.QtGui     import QDesktopServices
 from PyQt6.QtCore    import QUrl

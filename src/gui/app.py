@@ -14,14 +14,16 @@ class App:
 
     def run(self):
         """Initialize the application, load styles, and start the main window."""
-
+        
         self.state.run()
         app = QApplication(sys.argv)
-
-        # Load global stylesheet
+        
         with open("src/gui/resources/style.qss", "r", encoding="utf-8") as f:
             app.setStyleSheet(f.read())
-
+        
         window = MainWindow(self.state)
         window.show()
-        sys.exit(app.exec())
+        
+        exit_code = app.exec()
+        self.state.end()
+        sys.exit(exit_code)
