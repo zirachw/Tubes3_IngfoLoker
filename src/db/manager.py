@@ -3,7 +3,7 @@ import shutil
 import fitz
 import random
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 
 from src.db.connection import DatabaseConnection
 from src.db.models import ApplicantProfile, ApplicationDetail
@@ -181,6 +181,25 @@ class DataManager:
         
         else:
             raise ValueError("text_type must be 'raw' or 'clean'")
+        
+    def get_cv_path(self, detail_id: int) -> Optional[str]:
+        """Retrieve CV file path by detail ID.
+        
+        Args:
+            db (DatabaseConnection): Database connection instance
+            detail_id (int): Unique detail identifier
+            
+        Returns:
+            Optional[str]: CV file path or None if not found
+        """
+
+        query = "SELECT cv_path FROM ApplicationDetail WHERE detail_id = %s"
+        result = self.db.execute_query(query, (detail_id,))
+        
+        if not result:
+            return None
+        
+        return result[0]['cv_path']
         
     def clear_temp(self):
         """Remove temporary extraction directory and all contents."""

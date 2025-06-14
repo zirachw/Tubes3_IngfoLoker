@@ -11,13 +11,13 @@ class ResultCard(QWidget):
     summaryRequested = pyqtSignal(int)
     viewCvRequested  = pyqtSignal(int)
 
-    def __init__(self, applicant, parent=None):
+    def __init__(self, detail, parent=None):
         super().__init__(parent)
         self.setObjectName("resultCard")
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
 
-        self.applicant = applicant
-        raw = getattr(applicant, "matches", {})
+        self.detail = detail
+        raw = getattr(detail, "matches", {})
         if isinstance(raw, dict):
             self.matches = raw
         else:
@@ -60,7 +60,7 @@ class ResultCard(QWidget):
         header_layout = QVBoxLayout()
         header_layout.setSpacing(4)
         
-        name_label = QLabel(self.applicant.name)
+        name_label = QLabel(self.detail.name)
         name_label.setObjectName("nameLabel")
         name_label.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold.value))
         name_label.setWordWrap(True)
@@ -189,12 +189,12 @@ class ResultCard(QWidget):
         
         layout.addLayout(button_layout)
         
-        summary_btn.clicked.connect(lambda: self.summaryRequested.emit(self.applicant.id))
-        view_btn.clicked.connect(lambda: self.viewCvRequested.emit(self.applicant.id))
+        summary_btn.clicked.connect(lambda: self.summaryRequested.emit(self.detail.id))
+        view_btn.clicked.connect(lambda: self.viewCvRequested.emit(self.detail.id))
 
-    def update_content(self, applicant):
-        self.applicant = applicant
-        raw = getattr(applicant, "matches", {})
+    def update_content(self, detail):
+        self.detail = detail
+        raw = getattr(detail, "matches", {})
         if isinstance(raw, dict):
             self.matches = raw
         else:

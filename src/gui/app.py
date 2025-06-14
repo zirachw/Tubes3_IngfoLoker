@@ -15,15 +15,27 @@ class App:
     def run(self):
         """Initialize the application, load styles, and start the main window."""
         
-        self.state.run()
-        app = QApplication(sys.argv)
-        
-        with open("src/gui/resources/style.qss", "r", encoding="utf-8") as f:
-            app.setStyleSheet(f.read())
-        
-        window = MainWindow(self.state)
-        window.show()
-        
-        exit_code = app.exec()
-        # self.state.end()
-        sys.exit(exit_code)
+        try:
+            self.state.run()
+            app = QApplication(sys.argv)
+            
+            with open("src/gui/resources/style.qss", "r", encoding="utf-8") as f:
+                app.setStyleSheet(f.read())
+            
+            window = MainWindow(self.state)
+            window.show()
+            
+            exit_code = app.exec()
+            sys.exit(exit_code)
+
+        except KeyboardInterrupt:
+            print(f"[Log] - Application interrupted by user.")
+            sys.exit(0)
+
+        except Exception as e:
+            print(f"[Error] - Running application: {e}")
+            sys.exit(1)
+
+        finally:
+            self.state.end()
+            print("[Log] - Application closed and resources cleaned up.")

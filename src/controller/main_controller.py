@@ -1,8 +1,11 @@
-from collections import namedtuple
 import os
+
+from pathlib import Path
+from collections import namedtuple
 
 from src.db.manager import DataManager
 from src.algo.kmp import KMP
+from src.db.models import ApplicantProfile, ApplicationDetail
 from src.gui.appState import AppState
 
 from PyQt6.QtGui     import QDesktopServices
@@ -30,9 +33,17 @@ class MainController:
                 if res:
                     matches[keyword] = res
             if matches:
+                applicant = ApplicationDetail.get_applicant(self.app_state.db, detail_id)
+
+                if not applicant:
+                    print(f"[Error] Applicant with {detail_id} detail_id not found.")
+                    continue
+
+                applicant_name = f"{applicant['first_name']} {applicant['last_name']}"
+
                 dummy_exact.append(Detail(
                     id=detail_id,
-                    name=f"Detail {detail_id}",
+                    name=applicant_name,
                     matches=matches
                 ))
 
@@ -52,17 +63,17 @@ class MainController:
     def show_summary(self, applicant_id: int):
         print(f"Show summary for ID {applicant_id}")
 
-    def open_cv(self, applicant_id: int):
-        print(f"Open CV for ID {applicant_id}")
-        pdf_map = {
-            1: "data/pbo2.pdf",
-            2: "data/aland_cv.pdf",
-        }
-        path = pdf_map.get(applicant_id)
-        if not path or not os.path.isfile(path):
-            print(f"[Error] PDF untuk ID {applicant_id} tidak ditemukan: {path}")
-            return
+    def open_cv(self, detail_id: int):
+        print(f"Open CV for ID {detail_id}")
+        
+        pdf_name = self.app_state.data_manager.get_cv_path(detail_id)
 
+        if not pdf_name:
+            print(f"[Error] CV for detail_id {detail_id} not found.")
+            return
+        
+        path = Path(self.app_state.data_folder) / pdf_name
         abs_path = os.path.abspath(path)
+        
         url = QUrl.fromLocalFile(abs_path)
         QDesktopServices.openUrl(url)

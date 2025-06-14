@@ -1,9 +1,14 @@
+import os
+
 from PyQt6.QtWidgets import (
     QWidget, QLabel, QVBoxLayout, QHBoxLayout, QGridLayout
 )
 from PyQt6.QtCore   import Qt, pyqtSignal
 from .result_card   import ResultCard
 from .pagination    import Pagination
+from pathlib import Path
+
+from src.gui.appState import AppState
 
 class ResultsArea(QWidget):
     summaryRequested = pyqtSignal(int)
@@ -21,6 +26,13 @@ class ResultsArea(QWidget):
         self.fuzzy_ms      = 0
 
         self._build_ui()
+
+        data_path = Path(os.getenv("DATA_FOLDER"))
+        if not data_path.exists():
+            self.count = 0
+
+        else:
+            self.count = len(list(data_path.glob("*.pdf")))
 
     def _build_ui(self):
         vlay = QVBoxLayout(self)
@@ -124,14 +136,14 @@ class ResultsArea(QWidget):
                 w.setParent(None)
 
         data  = self._results
-        total = len(data)
+        total = self.count
         pages = (total + self.page_size - 1) // self.page_size
         start = (self.current_page - 1) * self.page_size
         sub   = data[start : start + self.page_size]
 
-        for idx, appl in enumerate(sub):
+        for idx, detail in enumerate(sub):
             r, c = divmod(idx, 5)
-            card = ResultCard(appl)
+            card = ResultCard(detail)
             card.summaryRequested.connect(self.summaryRequested)
             card.viewCvRequested.connect(self.viewCvRequested)
             self.grid.addWidget(card, r, c)

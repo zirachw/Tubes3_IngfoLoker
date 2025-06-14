@@ -131,7 +131,7 @@ class ApplicationDetail:
         }
     
     @staticmethod
-    def get_applicant(db: DatabaseConnection, applicant_id: int) -> Optional[Dict[str, Any]]:
+    def get_applicant(db: DatabaseConnection, detail_id: int) -> Optional[Dict[str, Any]]:
         """Get associated applicant profile.
         
         Args:
@@ -142,4 +142,16 @@ class ApplicationDetail:
             Optional[Dict[str, Any]]: Associated applicant data or None
         """
 
-        return ApplicantProfile.get_by_id(db, applicant_id)
+        query = """
+        SELECT ap.applicant_id FROM ApplicantProfile ap
+        JOIN ApplicationDetail ad ON ap.applicant_id = ad.applicant_id
+        WHERE ad.detail_id = %s
+        """
+        result = db.execute_query(query, (detail_id,))
+
+        if not result:
+            return None
+        
+        result = result[0]['applicant_id']
+
+        return ApplicantProfile.get_by_id(db, result)
