@@ -2,7 +2,6 @@ from collections import namedtuple
 import os
 from src.db.manager import DataManager
 from src.algo.kmp import KMP
-from src.gui.components.pdf_viewer import PdfViewer
 from PyQt6.QtGui     import QDesktopServices
 from PyQt6.QtCore    import QUrl
 
