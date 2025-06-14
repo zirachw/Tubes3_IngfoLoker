@@ -3,8 +3,11 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout
 )
 from PyQt6.QtCore   import Qt, QUrl
-from src.GUI.components.search_bar   import SearchBar
-from src.GUI.components.results_area import ResultsArea
+from PyQt6.QtWebEngineWidgets import QWebEngineView
+from src.gui.components.search_bar   import SearchBar
+from src.gui.components.results_area import ResultsArea
+from src.gui.components.pdf_viewer   import PdfViewer
+import os
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -170,5 +173,25 @@ class MainWindow(QMainWindow):
         # TODO: open SummaryDialog
 
     def open_cv(self, applicant_id: int):
+        """
+        Dipanggil saat user mengklik 'View CV' di ResultCard.
+        Kita lookup path PDF berdasarkan ID, lalu munculkan dialog PdfViewer.
+        """
         print(f"Open CV for ID {applicant_id}")
-        # TODO: open PDF viewer
+        # pdf_map = {
+        #     1: "data/pbo2.pdf",
+        #     2: "data/aland_cv.pdf",
+        #     # dst...
+        # }
+        # path = pdf_map.get(applicant_id)
+        # if not path:
+        #     print(f"[Error] Tidak ada mapping PDF untuk ID {applicant_id}")
+        #     return
+
+        # abs_path = os.path.abspath(path)
+        # if not os.path.isfile(abs_path):
+        #     print(f"[Error] File PDF tidak ditemukan: {abs_path}")
+        #     return
+
+        # dlg = PdfViewer(abs_path, self)
+        # dlg.exec()
