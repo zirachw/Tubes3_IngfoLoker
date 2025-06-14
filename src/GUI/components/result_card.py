@@ -2,7 +2,7 @@ from collections import Counter
 from PyQt6.QtWidgets import (
     QWidget, QLabel, QPushButton,
     QVBoxLayout, QHBoxLayout, QGraphicsDropShadowEffect,
-    QFrame, QSizePolicy, QScrollArea
+    QFrame, QSizePolicy, QScrollArea, QApplication
 )
 from PyQt6.QtCore   import pyqtSignal, Qt
 from PyQt6.QtGui    import QFont
@@ -23,8 +23,23 @@ class ResultCard(QWidget):
         else:
             self.matches = dict(Counter(raw))
 
-        self.setFixedSize(320, 280)
-        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        # Calculate responsive size based on screen dimensions
+        screen = QApplication.primaryScreen()
+        screen_width = screen.availableGeometry().width()
+        
+        # Base card size responsive to screen width
+        # For screens < 1920px, scale down proportionally
+        scale_factor = min(1.0, screen_width / 1920)
+        base_width = int(320 * scale_factor)
+        base_height = int(280 * scale_factor)
+        
+        # Set minimum and maximum sizes for better UX
+        self.card_width = max(250, min(350, base_width))
+        self.card_height = max(220, min(320, base_height))
+        
+        self.setMinimumSize(self.card_width, self.card_height)
+        self.setMaximumSize(self.card_width, self.card_height)
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
 
         shadow = QGraphicsDropShadowEffect(self)
         shadow.setBlurRadius(12)
@@ -36,7 +51,10 @@ class ResultCard(QWidget):
 
     def _build_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(16, 12, 16, 12)
+        
+        # Responsive margins based on card size
+        margin = max(12, int(self.card_width * 0.04))
+        main_layout.setContentsMargins(margin, margin-4, margin, margin-4)
         main_layout.setSpacing(8)
 
         # — Header Section —
@@ -60,27 +78,33 @@ class ResultCard(QWidget):
         header_layout = QVBoxLayout()
         header_layout.setSpacing(4)
         
+        # Responsive font sizes
+        name_font_size = max(12, int(self.card_width / 25))
+        count_font_size = max(10, int(self.card_width / 30))
+        
         name_label = QLabel(self.detail.name)
         name_label.setObjectName("nameLabel")
-        name_label.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold.value))
+        name_label.setFont(QFont("Segoe UI", name_font_size, QFont.Weight.Bold.value))
         name_label.setWordWrap(True)
-        name_label.setMaximumHeight(40)
+        name_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         header_layout.addWidget(name_label)
         
         total_matches = sum(self.matches.values())
         count_text = f"{total_matches} match{'es' if total_matches != 1 else ''}"
         count_label = QLabel(count_text)
         count_label.setObjectName("countLabel")
-        count_label.setFont(QFont("Segoe UI", 11, QFont.Weight.Medium.value))
+        count_label.setFont(QFont("Segoe UI", count_font_size, QFont.Weight.Medium.value))
         count_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         header_layout.addWidget(count_label)
         
         layout.addLayout(header_layout)
 
     def _create_content(self, layout):
+        content_font_size = max(10, int(self.card_width / 32))
+        
         matched_label = QLabel("Matched Keywords:")
         matched_label.setObjectName("matchedLabel")
-        matched_label.setFont(QFont("Segoe UI", 11, QFont.Weight.DemiBold.value))
+        matched_label.setFont(QFont("Segoe UI", content_font_size, QFont.Weight.DemiBold.value))
         layout.addWidget(matched_label)
         
         if self.matches:
@@ -91,26 +115,32 @@ class ResultCard(QWidget):
             scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
             scroll_area.setFrameShape(QFrame.Shape.NoFrame)
             
-            scroll_area.setFixedHeight(75)
+            # Responsive scroll area height
+            scroll_height = max(60, int(self.card_height * 0.25))
+            scroll_area.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+            scroll_area.setMinimumHeight(scroll_height)
+            scroll_area.setMaximumHeight(scroll_height)
             
             keywords_widget = QWidget()
             keywords_layout = QVBoxLayout(keywords_widget)
             keywords_layout.setSpacing(2)
             keywords_layout.setContentsMargins(8, 4, 8, 4)
             
-            self._create_keyword_items(keywords_layout)
+            self._create_keyword_items(keywords_layout, content_font_size)
             
             scroll_area.setWidget(keywords_widget)
             layout.addWidget(scroll_area)
         else:
             no_matches = QLabel("No matches found")
-            no_matches.setFont(QFont("Segoe UI", 10))
+            no_matches.setFont(QFont("Segoe UI", content_font_size-1))
             no_matches.setStyleSheet("color: #6c757d; font-style: italic;")
-            no_matches.setFixedHeight(75)
+            scroll_height = max(60, int(self.card_height * 0.25))
+            no_matches.setMinimumHeight(scroll_height)
+            no_matches.setMaximumHeight(scroll_height)
             no_matches.setAlignment(Qt.AlignmentFlag.AlignCenter)
             layout.addWidget(no_matches)
 
-    def _create_keyword_items(self, layout):
+    def _create_keyword_items(self, layout, base_font_size):
         """Create individual keyword items for the scroll area"""
         if not self.matches:
             return
@@ -127,13 +157,13 @@ class ResultCard(QWidget):
             item_layout.setSpacing(8)
             
             keyword_label = QLabel(keyword)
-            keyword_label.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold.value))
+            keyword_label.setFont(QFont("Segoe UI", base_font_size-1, QFont.Weight.Bold.value))
             keyword_label.setStyleSheet("color: #495057;")
             keyword_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
             
             if count > 1:
                 count_label = QLabel(f"{count}x")
-                count_label.setFont(QFont("Segoe UI", 9))
+                count_label.setFont(QFont("Segoe UI", base_font_size-2))
                 count_label.setStyleSheet("""
                     color: #ffffff;
                     background-color: #6c757d;
@@ -141,15 +171,15 @@ class ResultCard(QWidget):
                     padding: 2px 6px;
                 """)
                 count_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                count_label.setFixedSize(30, 16)
+                count_label.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
                 item_layout.addWidget(count_label)
             
             item_layout.addWidget(keyword_label)
             
             bullet = QLabel("•")
-            bullet.setFont(QFont("Segoe UI", 12, QFont.Weight.Bold.value))
+            bullet.setFont(QFont("Segoe UI", base_font_size, QFont.Weight.Bold.value))
             bullet.setStyleSheet("color: #3498db;")
-            bullet.setFixedWidth(10)
+            bullet.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
             
             final_layout = QHBoxLayout()
             final_layout.setContentsMargins(0, 0, 0, 0)
@@ -159,7 +189,7 @@ class ResultCard(QWidget):
             
             container = QWidget()
             container.setLayout(final_layout)
-            container.setFixedHeight(20)
+            container.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
             
             layout.addWidget(container)
         
@@ -169,16 +199,20 @@ class ResultCard(QWidget):
         button_layout = QHBoxLayout()
         button_layout.setSpacing(10)
         
+        # Responsive button font size and height
+        button_font_size = max(9, int(self.card_width / 35))
+        button_height = max(32, int(self.card_height / 8))
+        
         summary_btn = QPushButton("Summary")
         summary_btn.setObjectName("summaryButton")
-        summary_btn.setFont(QFont("Segoe UI", 10, QFont.Weight.Medium.value))
-        summary_btn.setFixedHeight(36)
+        summary_btn.setFont(QFont("Segoe UI", button_font_size, QFont.Weight.Medium.value))
+        summary_btn.setMinimumHeight(button_height)
         summary_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         
         view_btn = QPushButton("View CV")
         view_btn.setObjectName("viewCVButton")
-        view_btn.setFont(QFont("Segoe UI", 10, QFont.Weight.Medium.value))
-        view_btn.setFixedHeight(36)
+        view_btn.setFont(QFont("Segoe UI", button_font_size, QFont.Weight.Medium.value))
+        view_btn.setMinimumHeight(button_height)
         view_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         
         summary_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -210,3 +244,8 @@ class ResultCard(QWidget):
                 child = layout.takeAt(0)
                 if child.widget():
                     child.widget().deleteLater()
+
+    def resizeEvent(self, event):
+        """Handle resize events to maintain responsiveness"""
+        super().resizeEvent(event)
+        # Could add dynamic updates here if needed
