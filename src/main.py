@@ -2,7 +2,7 @@ import os
 from src.db.connection import DatabaseConnection
 from src.db.encryption import EncryptionManager
 from src.utils.seeder import ApplicantSeeder
-from src.utils.data import DataManager
+from src.db.manager import DataManager
 from src.crypto.FF3 import FF3Cipher
 
 class Main:
@@ -35,7 +35,6 @@ class Main:
             seeder = ApplicantSeeder(self.db, self.applicant_count)
             seeder.seed()
         
-            self.data_manager.extract_pdf()
             self.data_manager.bind_pdf()
             
             if self.enable_encryption and self.cipher:
@@ -46,27 +45,28 @@ class Main:
 
             print("[Log] - ATS setup completed successfully!")
 
-            texts = DataManager.get_extracted_texts()
-
-            # Returns list of strings, each containing one txt file's content
-            for i, content in enumerate(texts):
-                print(f"File {i+1}: {len(content)} characters")
+            texts = self.data_manager.get_extracted_texts('clean')
             
+            for detail_id, text in texts.items():
+                print(f"[Log] - Extracted text for detail ID {detail_id}: {len(text)} characters")
+
+            print("[Log] - All operations completed successfully!")
+
         except Exception as e:
             print(f"[Error] - During setup: {e}")
             raise
         
         finally:
-
-            print("[Option] - Enter any key to clean up temporary files and close the database connection...")
+            print("[Option] - Enter any key to exit!")
             input()
+
             try:
                 self.data_manager.clear_temp()
                 self.db.close()
-                print("[Log] - Cleanup completed")
+                print("[Log] - Thanks for using the ATS system!")
 
-            except Exception as cleanup_error:
-                print(f"[Warning] - Cleanup error: {cleanup_error}")
+            except Exception as e:
+                print(f"[Error] - During closing: {e}")
 
 if __name__ == "__main__":
     main = Main()
