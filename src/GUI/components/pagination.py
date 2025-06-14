@@ -34,7 +34,6 @@ class Pagination(QWidget):
         lay.addWidget(self.prev_btn)
         lay.addWidget(self.label)
         lay.addWidget(self.next_btn)
-        lay.addStretch()
 
         self.setVisible(False)
 

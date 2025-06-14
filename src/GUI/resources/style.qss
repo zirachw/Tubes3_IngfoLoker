@@ -1,146 +1,339 @@
-/* Global window */
 QMainWindow#MainWindow,
 QWidget#centralWidget {
-  background-color: #F4F4F9;
-  color: #333333;
+  background: qlineargradient(x1:0, y1:0, x2:1, y2:1, 
+              stop:0 #f8f9fa, stop:0.5 #e9ecef, stop:1 #f8f9fa);
+  color: #2c3e50;
 }
 
-/* SearchBar */
 #searchBar {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 20px;
+  margin: 10px;
 }
+
 #searchBar QLabel {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333333;
-  margin-bottom: 4px;
-}
-#searchBar QLineEdit,
-#searchBar QSpinBox {
-  background: #FFFFFF;
-  border: 1px solid #CCCCCC;
-  border-radius: 12px;
-  padding: 6px 8px;
-  font-size: 14px;
-  color: #2C2C2C;
-}
-#searchBar QPushButton {
-  background: #FFFFFF;
-  border: 1px solid #CCCCCC;
-  border-radius: 12px;
-  padding: 6px 12px;
-  font-size: 14px;
-  color: #2C2C2C;
-}
-#searchBar QPushButton:hover {
-  background: #E9ECEF;
-}
-#searchBar QPushButton:checked {
-  background: #007BFF;
-  color: #FFFFFF;
-  border-color: #0056B3;
-}
-
-/* ResultsArea */
-#resultsArea {
-  background-color: #F4F4F9;
-}
-#resultsArea QLabel#exactLabel,
-#resultsArea QLabel#fuzzyLabel {
   font-size: 16px;
-  font-weight: 600;
-  color: #555555;
-}
-#resultsArea QPushButton {
-  background: #FFFFFF;
-  border: 1px solid #CCCCCC;
-  border-radius: 12px;
-  padding: 6px 10px;
-  color: #2C2C2C;
-}
-#resultsArea QPushButton:disabled {
-  color: #AAAAAA;
-  border-color: #E9ECEF;
-}
-#resultsArea QLabel#pageLabel {
-  font-size: 14px;
-  font-weight: 500;
-  padding: 0 8px;
-  color: #333333;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 8px;
 }
 
-/* ResultCard */
-#resultCard {
-  background-color: #FFFFFF;
+#searchBar QLineEdit {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid transparent;
   border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #2c3e50;
+  selection-background-color: #3498db;
 }
-#resultCard QLabel {
-  margin: 0;
-  padding: 0;
-  color: #2C2C2C;
-  font-size: 12px;
+
+#searchBar QLineEdit:focus {
+  border: 2px solid #3498db;
+  background: #ffffff;
 }
+
+#searchBar QSpinBox {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #2c3e50;
+  min-width: 60px;
+}
+
+#searchBar QSpinBox:focus {
+  border: 2px solid #3498db;
+  background: #ffffff;
+}
+
+#searchBar QPushButton {
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+              stop:0 #ffffff, stop:1 #f8f9fa);
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  min-width: 80px;
+}
+
+#searchBar QPushButton:hover {
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+              stop:0 #f8f9fa, stop:1 #e9ecef);
+  border-color: #ced4da;
+}
+
+#searchBar QPushButton:checked {
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+              stop:0 #4dabf7, stop:1 #339af0);
+  color: #ffffff;
+  border-color: #228be6;
+  font-weight: 700;
+}
+
+#searchBar QPushButton:pressed {
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+              stop:0 #1c7ed6, stop:1 #1971c2);
+}
+
+#searchBar QPushButton#searchButton {
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+              stop:0 #51cf66, stop:1 #40c057);
+  border: 2px solid #37b24d;
+  color: #ffffff;
+  font-weight: 700;
+  min-width: 100px;
+}
+
+#searchBar QPushButton#searchButton:hover {
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+              stop:0 #69db7c, stop:1 #51cf66);
+  border-color: #40c057;
+}
+
+#resultsArea {
+  padding: 10px;
+  border: none;
+}
+
+#resultsArea QLabel#infoExact,
+#resultsArea QLabel#infoFuzzy {
+  font-size: 18px;
+  font-weight: 700;
+  color: #495057;
+  border-bottom: 3px solid #e9ecef;
+  margin-bottom: 2px;
+}
+
+#resultsArea QLabel#infoExact {
+  color: #28a745;
+}
+
+#resultsArea QLabel#infoFuzzy {
+  color: #fd7e14;
+}
+
+#resultCard {
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+              stop:0 #ffffff, stop:1 #f8f9fa);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  margin: 6px;
+}
+
+#resultCard:hover {
+  border-color: rgba(52, 152, 219, 0.4);
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+              stop:0 #f8f9fa, stop:1 #e9ecef);
+}
+
 #resultCard QLabel#nameLabel {
   font-size: 16px;
-  font-weight: 600;
-}
-#resultCard QLabel#countLabel {
-  font-size: 12px;
-  color: #555555;
-}
-#resultCard QLabel#matchedLabel {
-  font-size: 12px;
-  font-weight: 600;
-  margin-top: 4px;
-}
-#resultCard QLabel#matchList {
-  font-size: 12px;
-  color: #2C2C2C;
-}
-#resultCard QPushButton#summaryButton,
-#resultCard QPushButton#viewCVButton {
-  background-color: #6c757d;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 12px;
-  padding: 6px 12px;
-  font-size: 12px;
-}
-#resultCard QPushButton#summaryButton:hover,
-#resultCard QPushButton#viewCVButton:hover {
-  background-color: #5a6268;
-}
-#resultCard QPushButton#summaryButton:pressed,
-#resultCard QPushButton#viewCVButton:pressed {
-  background-color: #4e555b;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+  padding: 0;
 }
 
-/* === Pagination === */
-#pagination {
+#resultCard QLabel#countLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+              stop:0 rgba(102, 126, 234, 0.5), stop:1 rgba(118, 75, 162, 0.5));
+  border-radius: 10px;
+  padding: 4px 10px;
+  margin: 0;
+  max-height: 20px;
+}
+
+#resultCard QFrame#separator {
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+  margin: 4px 0;
+}
+
+#resultCard QLabel#matchedLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: #495057;
+  margin: 0;
+  padding: 0;
+}
+
+/* Keywords scroll area styling */
+#resultCard QScrollArea#keywordsScrollArea {
+  background: rgba(248, 249, 250, 0.8);
+  border-radius: 8px;
+  border-left: 3px solid #e9ecef;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+#resultCard QScrollArea#keywordsScrollArea QWidget {
   background: transparent;
+}
+
+/* Scrollbar styling for keywords area */
+#resultCard QScrollArea#keywordsScrollArea QScrollBar:vertical {
+  background: rgba(0, 0, 0, 0.05);
+  width: 8px;
+  border-radius: 4px;
+  margin: 2px;
+}
+
+#resultCard QScrollArea#keywordsScrollArea QScrollBar::handle:vertical {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  min-height: 20px;
+}
+
+#resultCard QScrollArea#keywordsScrollArea QScrollBar::handle:vertical:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+#resultCard QScrollArea#keywordsScrollArea QScrollBar::add-line:vertical,
+#resultCard QScrollArea#keywordsScrollArea QScrollBar::sub-line:vertical {
+  height: 0px;
+}
+
+/* Compact button styling */
+#resultCard QPushButton#summaryButton,
+#resultCard QPushButton#viewCVButton {
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+              stop:0 #6f42c1, stop:1 #5a32a3);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  margin: 0;
+  min-height: 32px;
+  max-height: 32px;
+}
+
+#resultCard QPushButton#summaryButton:hover,
+#resultCard QPushButton#viewCVButton:hover {
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+              stop:0 #7952b3, stop:1 #6f42c1);
+}
+
+#resultCard QPushButton#viewCVButton {
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+              stop:0 #20c997, stop:1 #17a2b8);
+}
+
+#resultCard QPushButton#viewCVButton:hover {
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+              stop:0 #38d9a9, stop:1 #20c997);
+}
+
+#resultCard QPushButton#summaryButton:pressed,
+#resultCard QPushButton#viewCVButton:pressed {
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+              stop:0 #495057, stop:1 #343a40);
+}
+
+#resultCard[highMatch="true"] {
+  border-left: 4px solid #28a745;
+}
+
+#resultCard[highMatch="true"] QLabel#countLabel {
+  background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+              stop:0 #28a745, stop:1 #20c997);
+}
+
+#resultCard[lowMatch="true"] {
+  border-left: 4px solid #ffc107;
+}
+
+#resultCard[lowMatch="true"] QLabel#countLabel {
+  background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+              stop:0 #ffc107, stop:1 #fd7e14);
+}
+
+#pagination {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 #pagination QPushButton {
-  background-color: #FFFFFF;
-  border: 1px solid #CCCCCC;
-  border-radius: 4px;
-  padding: 4px 8px;
-  color: #2C2C2C;
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+              stop:0 #ffffff, stop:1 #f8f9fa);
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 8px 16px;
+  color: #495057;
+  font-weight: 600;
+  margin-bottom: 20px;
+  min-width: 20px;
+}
+
+#pagination QPushButton:hover {
+  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+              stop:0 #e3f2fd, stop:1 #bbdefb);
+  border-color: #2196f3;
+  color: #1976d2;
 }
 
 #pagination QPushButton:disabled {
-  color: #AAAAAA;
-  border-color: #E9ECEF;
+  color: #adb5bd;
+  border-color: #f1f3f4;
+  background: #f8f9fa;
 }
 
 #pagination QLabel#paginationLabel {
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 0 15px;
+  margin-bottom: 20px;
+  color: #495057;
+}
+
+#titleLabel {
+  font-size: 36px;
+  font-weight: 800;
+  color: #2c3e50;
+  margin: 20px 4px;
+  text-align: center;
+}
+
+#resultsTitle {
+  font-size: 24px;
+  font-weight: bold;
+  color: #495057;
+  text-align: center;
+}
+
+#showingLabel {
+  font-size: 15px;
+  color: #495057;
   font-weight: 500;
-  padding: 0 8px;
-  color: #333333;
+  margin-bottom: 20px;
 }
-#infoLabel {
-  font-size: 14px;
-  color: #555555;
-  padding: 4px 0;
+
+#resultCard[exactMatch="true"] {
+  border-left: 5px solid #28a745;
 }
+
+#resultCard[exactMatch="true"] QLabel#nameLabel {
+  color: #28a745;
+}
+
+#resultCard[fuzzyMatch="true"] {
+  border-left: 5px solid #fd7e14;
+}
+
+#resultCard[fuzzyMatch="true"] QLabel#nameLabel {
+  color: #fd7e14;
+}
+

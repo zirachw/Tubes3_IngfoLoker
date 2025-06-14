@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import (
-    QMainWindow, QApplication,
-    QWidget, QVBoxLayout, QScrollArea
+    QMainWindow, QApplication, QLabel,
+    QWidget, QVBoxLayout
 )
-from PyQt6.QtCore   import Qt
+from PyQt6.QtCore   import Qt, QUrl
 from src.GUI.components.search_bar   import SearchBar
 from src.GUI.components.results_area import ResultsArea
 
@@ -10,7 +10,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setObjectName("MainWindow")
-        self.setWindowTitle("IngfoLoker – Search Demo")
+        self.setWindowTitle("IngfoLoker - Job Applicant Search")
 
         # full-screen
         screen = QApplication.primaryScreen()
@@ -21,20 +21,23 @@ class MainWindow(QMainWindow):
         central = QWidget()
         central.setObjectName("centralWidget")
         vlay = QVBoxLayout(central)
-        vlay.setContentsMargins(16,16,16,16)
+        vlay.setContentsMargins(100,16,100,16)
         vlay.setSpacing(16)
         self.setCentralWidget(central)
 
         # SearchBar
+        self.title = QLabel("CV Analyzer App")
+        self.title.setObjectName("titleLabel")
+        self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        vlay.addWidget(self.title)
+
         self.search_bar = SearchBar()
         vlay.addWidget(self.search_bar)
 
-        # ResultsArea inside scroll
+        # ResultsArea directly without scroll - set background to match central widget
         self.results_area = ResultsArea()
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setWidget(self.results_area)
-        vlay.addWidget(scroll)
+        self.results_area.setObjectName("resultsArea")
+        vlay.addWidget(self.results_area)
 
         # wire signals
         self.search_bar.searchRequested.connect(self.on_search)
@@ -42,14 +45,13 @@ class MainWindow(QMainWindow):
         self.results_area.viewCvRequested.connect(self.open_cv)
 
     def on_search(self, keywords, algorithm, top_n):
-        # dummy data until controller is ready
         from collections import namedtuple
         Applicant = namedtuple("Applicant", ["id", "name", "matches"])
         dummy_exact = [
             Applicant(
                 id=1,
                 name="Farhan",
-                matches={"React": 1, "Express": 2, "HTML": 1}
+                matches={"React": 1, "Express": 2, "HTML": 1, "CSS": 1, "JavaScript": 1, "Python": 1, "Django": 1, "C++": 1, "Qt": 1, "Ruby": 1, "Rails": 1, "Go": 1, "Gin": 1, "PHP": 1, "Laravel": 1, "Swift": 1, "iOS": 1, "Kotlin": 1, "Android": 1, "TypeScript": 1, "Angular": 1, "Vue.js": 1, "Nuxt.js": 1, "Rust": 1, "Actix": 1, "Scala": 1, "Akka": 1, "Elixir": 1, "Phoenix": 1, "C#": 1, "ASP.NET": 1, "Perl": 1, "Dancer": 1}
             ),
             Applicant(
                 id=2,
@@ -152,12 +154,16 @@ class MainWindow(QMainWindow):
             )
         ]
         
-        
-        # Then pick top_n from exact, or if none, from fuzzy:
-        exact_results = dummy_exact[:top_n]
-        fuzzy_results = [] if exact_results else dummy_fuzzy[:top_n]
-
-        self.results_area.show_results(exact_results, fuzzy_results)
+        exact = dummy_exact[:top_n]
+        exec_time_exact = 120  # misal diukur di controller
+        if exact:
+            # exact mode
+            self.results_area.show_results(exact, exact_ms=exec_time_exact, fuzzy_ms=0)
+        else:
+            # fallback fuzzy
+            fuzzy = dummy_exact[:top_n]
+            exec_time_fuzzy = 200
+            self.results_area.show_results(fuzzy, exact_ms=exec_time_exact, fuzzy_ms=exec_time_fuzzy)
 
     def show_summary(self, applicant_id: int):
         print(f"Show summary for ID {applicant_id}")
