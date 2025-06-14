@@ -58,3 +58,6 @@ htmlcov/
 
 # UV
 .uv_cache/
+
+# Data
+data/
