@@ -1,5 +1,6 @@
 QMainWindow#MainWindow,
-QWidget#centralWidget {
+QWidget#centralWidget,
+QDialog#SummaryDialog {
   background: qlineargradient(x1:0, y1:0, x2:1, y2:1, 
               stop:0 #f8f9fa, stop:0.5 #e9ecef, stop:1 #f8f9fa);
   color: #2c3e50;
@@ -21,7 +22,7 @@ QWidget#centralWidget {
 }
 
 #searchBar QLineEdit {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.95);  
   border: 2px solid transparent;
   border-radius: 12px;
   padding: 12px 16px;
@@ -337,3 +338,235 @@ QWidget#centralWidget {
   color: #fd7e14;
 }
 
+QDialog#SummaryDialog {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, 
+               stop:0 #f8f9fa, stop:0.5 #e9ecef, stop:1 #f8f9fa);
+    color: #2c3e50;
+}
+
+/* Scroll Area */
+QScrollArea#summaryScrollArea {
+    background: transparent;
+    border: none;
+}
+
+QScrollArea#summaryScrollArea QScrollBar:vertical {
+    background: rgba(0, 0, 0, 0.05);
+    width: 8px;
+    border-radius: 4px;
+    margin: 2px;
+}
+
+QScrollArea#summaryScrollArea QScrollBar::handle:vertical {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    min-height: 20px;
+}
+
+QScrollArea#summaryScrollArea QScrollBar::handle:vertical:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+QScrollArea#summaryScrollArea QScrollBar::add-line:vertical,
+QScrollArea#summaryScrollArea QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+/* Title Header */
+QLabel#summaryTitle {
+    font-size: 32px;
+    font-weight: 800;
+    color: #2c3e50;
+    margin: 0px 0px 20px 0px;
+    padding: 20px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+               stop:0 rgba(255, 255, 255, 0.9), stop:1 rgba(248, 249, 250, 0.9));
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Group Box Base Styling */
+QGroupBox#profileGroup,
+QGroupBox#skillsGroup,
+QGroupBox#experienceGroup,
+QGroupBox#educationGroup {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+               stop:0 #ffffff, stop:1 #f8f9fa);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 6px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+/* Profile Group Title */
+QGroupBox#profileGroup::title {
+    subcontrol-origin: margin;
+    left: 15px;
+    padding: 5px 10px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+               stop:0 #51cf66, stop:1 #40c057);
+    color: white;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+/* Skills Group Title */
+QGroupBox#skillsGroup::title {
+    subcontrol-origin: margin;
+    left: 15px;
+    padding: 5px 10px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+               stop:0 #4dabf7, stop:1 #339af0);
+    color: white;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+/* Experience Group Title */
+QGroupBox#experienceGroup::title {
+    subcontrol-origin: margin;
+    left: 15px;
+    padding: 5px 10px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+               stop:0 #6f42c1, stop:1 #5a32a3);
+    color: white;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+/* Education Group Title */
+QGroupBox#educationGroup::title {
+    subcontrol-origin: margin;
+    left: 15px;
+    padding: 5px 10px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+               stop:0 #20c997, stop:1 #17a2b8);
+    color: white;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+/* Profile Information Labels */
+#SummaryDialog QLabel#nameLabel {
+    font-size: 20px;
+    font-weight: 700;
+    color: #28a745;
+    padding: 8px;
+    background: rgba(40, 167, 69, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid #28a745;
+}
+
+QLabel#profileInfoLabel {
+    font-size: 14px;
+    color: #495057;
+    padding: 8px 12px;
+    background: rgba(248, 249, 250, 0.8);
+    border-radius: 8px;
+    border-left: 3px solid #e9ecef;
+}
+
+/* Skills Labels */
+QLabel#skillLabel {
+    font-size: 12px;
+    font-weight: 600;
+    color: #ffffff;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+               stop:0 rgba(102, 126, 234, 0.8), stop:1 rgba(118, 75, 162, 0.8));
+    border-radius: 10px;
+    padding: 6px 12px;
+    margin: 2px;
+}
+
+/* Job Cards */
+QFrame#jobCard {
+    background: rgba(248, 249, 250, 0.8);
+    border-radius: 8px;
+    border-left: 4px solid #6f42c1;
+    padding: 12px;
+    margin: 4px;
+}
+
+QLabel#jobTitleLabel {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+QLabel#jobYearsLabel {
+    font-size: 12px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+QLabel#jobDescLabel {
+    font-size: 13px;
+    color: #495057;
+    margin-top: 4px;
+}
+
+/* Education Cards */
+QFrame#eduCard {
+    background: rgba(248, 249, 250, 0.8);
+    border-radius: 8px;
+    border-left: 4px solid #20c997;
+    padding: 12px;
+    margin: 4px;
+}
+
+QLabel#eduProgramLabel {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+QLabel#eduInstLabel {
+    font-size: 14px;
+    color: #495057;
+}
+
+QLabel#eduYearsLabel {
+    font-size: 12px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Close Button */
+QPushButton#summaryCloseButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+               stop:0 #dc3545, stop:1 #c82333);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 100px;
+}
+
+QPushButton#summaryCloseButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+               stop:0 #e4606d, stop:1 #dc3545);
+}
+
+QPushButton#summaryCloseButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+               stop:0 #bd2130, stop:1 #a71e2a);
+}
+
+#skillsGroup {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+#skillsTitle {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+#skillLabel {
+    padding: 3px 0;
+}
