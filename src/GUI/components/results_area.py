@@ -117,7 +117,7 @@ class ResultsArea(QWidget):
             self.current_page = 1
 
             self.title_label.show()
-            total = len(results)
+            total = self.count
             self.infoExact.setText(f"Exact Matches: {total} CVs scanned in {exact_ms} ms")
             self.infoExact.show()
 
@@ -136,7 +136,7 @@ class ResultsArea(QWidget):
                 w.setParent(None)
 
         data  = self._results
-        total = self.count
+        total = len(data)
         pages = (total + self.page_size - 1) // self.page_size
         start = (self.current_page - 1) * self.page_size
         sub   = data[start : start + self.page_size]
