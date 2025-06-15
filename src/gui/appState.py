@@ -57,13 +57,9 @@ class AppState:
             print("[Log] - ATS setup completed successfully!")
 
             texts = self.data_manager.get_extracted_texts('clean')
-            
-            for detail_id, text in texts.items():
-                print(f"[Log] - Extracted text for detail ID {detail_id}: {len(text)} characters")
 
             print("[Log] - All operations completed successfully!")
 
-            ## TODO: Implement the regex summary extraction
             extracted_raw_texts = Summary.generate(self.data_manager.get_extracted_texts('raw'))
             self.data_manager.extracted_raw_texts = extracted_raw_texts
 

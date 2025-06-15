@@ -9,6 +9,7 @@ from .pagination    import Pagination
 from pathlib import Path
 
 from src.gui.appState import AppState
+from src.db.encryption import EncryptionManager
 
 class ResultsArea(QWidget):
     summaryRequested = pyqtSignal(int)

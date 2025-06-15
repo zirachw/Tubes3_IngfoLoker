@@ -18,6 +18,8 @@ class MainController:
         self.results_area = results_area
         self.parent = parent
         self.app_state = app_state
+        self.applicants = EncryptionManager.get_decrypted_applicants(self.app_state.db)
+
 
     def search(self, keywords, algorithm, top_n):
         algorithm = algorithm.lower()
@@ -103,12 +105,17 @@ class MainController:
     
     def _get_applicant_info(self, detail_id, matches):
         Detail = namedtuple("Detail", ["id", "name", "matches"])
-        applicant = ApplicationDetail.get_applicant(self.app_state.db, detail_id)
+        id = ApplicationDetail.get_applicant_id(self.app_state.db, detail_id)
+
+        applicant = self.applicants[id - 1]
+
         if not applicant:
             print(f"[Error] Applicant with {detail_id} detail_id not found.")
             return None
+        
         name = f"{applicant['first_name']} {applicant['last_name']}"
         return Detail(id=detail_id, name=name, matches=matches)
+
 
     def show_summary(self, detail_id: int):
 

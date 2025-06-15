@@ -111,3 +111,12 @@ class EncryptionManager:
             decrypted_applicants.append(decrypted_applicant)
         
         return decrypted_applicants
+    
+    @staticmethod
+    def decrypt_name(encrypted_first_name: str, encrypted_last_name: str) -> str:
+        cipher = FF3Cipher(os.getenv('FF3_KEY'), os.getenv('FF3_TWEAK'))
+        
+        first_name = cipher.decrypt(encrypted_first_name, field_type='name') if encrypted_first_name else ""
+        last_name = cipher.decrypt(encrypted_last_name, field_type='name') if encrypted_last_name else ""
+        
+        return f"{first_name} {last_name}".strip()
