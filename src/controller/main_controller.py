@@ -35,19 +35,26 @@ class MainController:
         end_exact = time.time()
         exec_time_exact = int((end_exact - start_exact) * 1000)
 
-        exact_res.sort(key=lambda detail: sum(detail.matches.values()), reverse=True)
-        exact_top = exact_res[:top_n]
+        found_keywords = set()
+        for detail in exact_res:
+            found_keywords.update(detail.matches.keys())
 
-        if exact_top:
-            self.results_area.show_results(exact_top, exact_ms=exec_time_exact, fuzzy_ms=0)
-        else:
+        missing_keywords = [k for k in keywords if k not in found_keywords]
+        
+        exec_time_fuzzy = 0
+        if missing_keywords:
             start_fuzzy = time.time()
-            fuzzy_res = self._run_fuzzy_search(keywords, extracted_texts)
+            fuzzy_res = self._run_fuzzy_search(missing_keywords, extracted_texts)
             end_fuzzy = time.time()
             exec_time_fuzzy = int((end_fuzzy - start_fuzzy) * 1000)
-            fuzzy_res.sort(key=lambda detail: sum(detail.matches.values()), reverse=True)
-            fuzzy_top = fuzzy_res[:top_n]
-            self.results_area.show_results(fuzzy_top, exact_ms=exec_time_exact, fuzzy_ms=exec_time_fuzzy)
+
+            exact_res.extend(fuzzy_res)
+
+        exact_res.sort(key=lambda detail: sum(detail.matches.values()), reverse=True)
+        top_results = exact_res[:top_n]
+
+        self.results_area.show_results(top_results, exact_ms=exec_time_exact, fuzzy_ms=exec_time_fuzzy)
+
 
     def _run_aho_corasick_search(self, keywords, extracted_texts):
         Detail = namedtuple("Detail", ["id", "name", "matches"])
