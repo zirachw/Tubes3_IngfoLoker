@@ -6,6 +6,7 @@ QDialog#SummaryDialog {
   color: #2c3e50;
 }
 
+/* ===== Search Bar ===== */
 #searchBar {
   background: rgba(255, 255, 255, 0.9);
   border-radius: 16px;
@@ -98,6 +99,7 @@ QDialog#SummaryDialog {
   border-color: #40c057;
 }
 
+/* ===== Results Area ===== */
 #resultsArea {
   padding: 10px;
   border: none;
@@ -120,6 +122,7 @@ QDialog#SummaryDialog {
   color: #fd7e14;
 }
 
+/* ===== Result Card ===== */
 #resultCard {
   background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
               stop:0 #ffffff, stop:1 #f8f9fa);
@@ -259,6 +262,23 @@ QDialog#SummaryDialog {
               stop:0 #ffc107, stop:1 #fd7e14);
 }
 
+#resultCard[exactMatch="true"] {
+  border-left: 5px solid #28a745;
+}
+
+#resultCard[exactMatch="true"] QLabel#nameLabel {
+  color: #28a745;
+}
+
+#resultCard[fuzzyMatch="true"] {
+  border-left: 5px solid #fd7e14;
+}
+
+#resultCard[fuzzyMatch="true"] QLabel#nameLabel {
+  color: #fd7e14;
+}
+
+/* ===== Pagination ===== */
 #pagination {
   background: rgba(255, 255, 255, 0.9);
   border-radius: 12px;
@@ -267,36 +287,43 @@ QDialog#SummaryDialog {
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-#pagination QPushButton {
-  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-              stop:0 #ffffff, stop:1 #f8f9fa);
-  border: 2px solid #e9ecef;
-  border-radius: 10px;
-  padding: 8px 16px;
-  color: #495057;
-  font-weight: 600;
-  margin-bottom: 20px;
-  min-width: 20px;
+/* Tombol Prev/Next Pagination */
+#paginationPrevButton, #paginationNextButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                stop:0 #ffffff, stop:1 #f1f3f5);
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 6px 12px;
+    min-width: 32px;
+    font-size: 14px;
+    color: #495057;
 }
 
-#pagination QPushButton:hover {
-  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
-              stop:0 #e3f2fd, stop:1 #bbdefb);
-  border-color: #2196f3;
-  color: #1976d2;
+/* Hover effect */
+#paginationPrevButton:hover, #paginationNextButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                stop:0 #e9ecef, stop:1 #dee2e6);
+    border-color: #adb5bd;
 }
 
-#pagination QPushButton:disabled {
-  color: #adb5bd;
-  border-color: #f1f3f4;
-  background: #f8f9fa;
+/* Pressed/Active state */
+#paginationPrevButton:pressed, #paginationNextButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                stop:0 #ced4da, stop:1 #adb5bd);
 }
+
+/* Disabled state */
+#paginationPrevButton:disabled, #paginationNextButton:disabled {
+    background: #f8f9fa;
+    border-color: #e9ecef;
+    color: #adb5bd;
+}
+
 
 #pagination QLabel#paginationLabel {
   font-size: 15px;
   font-weight: 600;
   padding: 0 15px;
-  margin-bottom: 20px;
   color: #495057;
 }
 
@@ -319,25 +346,9 @@ QDialog#SummaryDialog {
   font-size: 15px;
   color: #495057;
   font-weight: 500;
-  margin-bottom: 20px;
 }
 
-#resultCard[exactMatch="true"] {
-  border-left: 5px solid #28a745;
-}
-
-#resultCard[exactMatch="true"] QLabel#nameLabel {
-  color: #28a745;
-}
-
-#resultCard[fuzzyMatch="true"] {
-  border-left: 5px solid #fd7e14;
-}
-
-#resultCard[fuzzyMatch="true"] QLabel#nameLabel {
-  color: #fd7e14;
-}
-
+/* ===== Summary Dialog ===== */
 QDialog#SummaryDialog {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:1, 
                stop:0 #f8f9fa, stop:0.5 #e9ecef, stop:1 #f8f9fa);

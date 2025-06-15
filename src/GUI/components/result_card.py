@@ -23,17 +23,13 @@ class ResultCard(QWidget):
         else:
             self.matches = dict(Counter(raw))
 
-        # Calculate responsive size based on screen dimensions
         screen = QApplication.primaryScreen()
         screen_width = screen.availableGeometry().width()
         
-        # Base card size responsive to screen width
-        # For screens < 1920px, scale down proportionally
         scale_factor = min(1.0, screen_width / 1920)
         base_width = int(320 * scale_factor)
         base_height = int(280 * scale_factor)
         
-        # Set minimum and maximum sizes for better UX
         self.card_width = max(250, min(350, base_width))
         self.card_height = max(220, min(320, base_height))
         
@@ -52,7 +48,6 @@ class ResultCard(QWidget):
     def _build_ui(self):
         main_layout = QVBoxLayout(self)
         
-        # Responsive margins based on card size
         margin = max(12, int(self.card_width * 0.04))
         main_layout.setContentsMargins(margin, margin-4, margin, margin-4)
         main_layout.setSpacing(8)
@@ -78,7 +73,6 @@ class ResultCard(QWidget):
         header_layout = QVBoxLayout()
         header_layout.setSpacing(4)
         
-        # Responsive font sizes
         name_font_size = max(12, int(self.card_width / 25))
         count_font_size = max(10, int(self.card_width / 30))
         
@@ -141,7 +135,6 @@ class ResultCard(QWidget):
             layout.addWidget(no_matches)
 
     def _create_keyword_items(self, layout, base_font_size):
-        """Create individual keyword items for the scroll area"""
         if not self.matches:
             return
         
@@ -199,7 +192,6 @@ class ResultCard(QWidget):
         button_layout = QHBoxLayout()
         button_layout.setSpacing(10)
         
-        # Responsive button font size and height
         button_font_size = max(9, int(self.card_width / 35))
         button_height = max(32, int(self.card_height / 8))
         
@@ -246,6 +238,5 @@ class ResultCard(QWidget):
                     child.widget().deleteLater()
 
     def resizeEvent(self, event):
-        """Handle resize events to maintain responsiveness"""
         super().resizeEvent(event)
-        # Could add dynamic updates here if needed
+        # Kalau mau card juga responsif, bisa nambah logika di sini

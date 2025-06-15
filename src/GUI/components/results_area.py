@@ -3,7 +3,7 @@ import os
 from PyQt6.QtWidgets import (
     QWidget, QLabel, QVBoxLayout, QHBoxLayout, QGridLayout, QApplication, QSizePolicy
 )
-from PyQt6.QtCore   import Qt, pyqtSignal
+from PyQt6.QtCore   import Qt, pyqtSignal, QTimer
 from .result_card   import ResultCard
 from .pagination    import Pagination
 from pathlib import Path
@@ -19,36 +19,33 @@ class ResultsArea(QWidget):
         self.setObjectName("resultsArea")
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
 
-        # Calculate responsive grid columns based on screen width
-        screen = QApplication.primaryScreen()
-        screen_width = screen.availableGeometry().width()
-        
-        # Dynamic columns based on screen width
-        if screen_width >= 1920:
-            self.max_columns = 5
-        elif screen_width >= 1600:
-            self.max_columns = 4
-        elif screen_width >= 1200:
-            self.max_columns = 3
-        elif screen_width >= 800:
-            self.max_columns = 2
-        else:
-            self.max_columns = 1
-            
-        # Dynamic page size based on columns
-        self.page_size = self.max_columns * 2  # 2 rows per page
+        self.max_columns = 3
+        self.max_rows = 2
+        self.page_size = 6
         self.current_page = 1
         self.results = []
         self.exact_ms = 0
         self.fuzzy_ms = 0
+        
+        self.card_min_width = 280
+        self.card_min_height = 200
+        self.card_margin = 16
+
+        self.title_height = 40
+        self.info_height = 30
+        self.pagination_height = 50
+        self.bottom_margin = 20
 
         self._build_ui()
+        self._calculate_layout()
 
         data_path = Path(os.getenv("DATA_FOLDER"))
         if not data_path.exists():
             self.count = 0
         else:
             self.count = len(list(data_path.glob("*.pdf")))
+
+        QTimer.singleShot(100, self._calculate_layout)
 
     def _build_ui(self):
         vlay = QVBoxLayout(self)
@@ -79,22 +76,13 @@ class ResultsArea(QWidget):
 
         vlay.addLayout(info_row)
         
-        # Create responsive grid container
+        # — Grid container for results cards —
         self.grid_container = QWidget()
         self.grid_container.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         
         self.grid = QGridLayout(self.grid_container)
         self.grid.setContentsMargins(0, 0, 0, 0)
         
-        # Responsive spacing based on screen size
-        screen = QApplication.primaryScreen()
-        screen_width = screen.availableGeometry().width()
-        spacing = max(12, int(screen_width / 120))  # Adaptive spacing
-        
-        self.grid.setHorizontalSpacing(spacing)
-        self.grid.setVerticalSpacing(spacing)
-        
-        # Center the grid
         hgrid = QHBoxLayout()
         hgrid.setContentsMargins(0, 0, 0, 0)
         hgrid.addStretch()
@@ -104,10 +92,10 @@ class ResultsArea(QWidget):
 
         vlay.addStretch()
 
-        # Bottom section with pagination
         bottom = QHBoxLayout()
         bottom.setContentsMargins(0, 0, 0, 0)
 
+        # — Label showing "Showing X–Y of Z" —
         self.showing_label = QLabel()
         self.showing_label.setObjectName("showingLabel")
         self.showing_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -115,6 +103,7 @@ class ResultsArea(QWidget):
 
         bottom.addStretch()
 
+        # — Pagination control: "<  Page X of Y  >" —
         self.pagination = Pagination()
         self.pagination.pageChanged.connect(self._on_page_changed)
         bottom.addWidget(self.pagination, alignment=Qt.AlignmentFlag.AlignRight)
@@ -123,8 +112,52 @@ class ResultsArea(QWidget):
 
         self.clear()
 
+    def _calculate_layout(self):
+        if not self.isVisible():
+            return
+            
+        available_width = self.width()
+        available_height = self.height()
+        
+        if available_width <= 0 or available_height <= 0:
+            return
+            
+        available_grid_height = (available_height - 
+                               self.title_height - 
+                               self.info_height - 
+                               self.pagination_height - 
+                               self.bottom_margin - 
+                               60)
+        
+        effective_width = available_width - 40
+        max_cols = max(1, (effective_width + self.card_margin) // (self.card_min_width + self.card_margin))
+        
+        max_rows = max(1, (available_grid_height + self.card_margin) // (self.card_min_height + self.card_margin))
+        
+        max_cols = min(max_cols, 6)
+        max_rows = min(max_rows, 4)
+        
+        old_page_size = self.page_size
+        self.max_columns = max_cols
+        self.max_rows = max_rows
+        self.page_size = max_cols * max_rows
+        
+        horizontal_spacing = max(12, min(24, (effective_width - (max_cols * self.card_min_width)) // max(1, max_cols - 1)))
+        vertical_spacing = max(12, min(24, (available_grid_height - (max_rows * self.card_min_height)) // max(1, max_rows - 1)))
+        
+        self.grid.setHorizontalSpacing(horizontal_spacing)
+        self.grid.setVerticalSpacing(vertical_spacing)
+        
+        if (old_page_size != self.page_size and 
+            hasattr(self, '_results') and 
+            self._results and 
+            old_page_size > 0):
+            
+            current_item_index = (self.current_page - 1) * old_page_size
+            self.current_page = max(1, (current_item_index // self.page_size) + 1)
+            self._refresh()
+
     def clear(self):
-        """Clear all widgets from the grid"""
         for i in reversed(range(self.grid.count())):
             item = self.grid.itemAt(i)
             if item and item.widget():
@@ -160,11 +193,10 @@ class ResultsArea(QWidget):
         else:
             self.infoFuzzy.hide()
 
+        self._calculate_layout()
         self._refresh()
 
     def _refresh(self):
-        """Refresh the current page display"""
-        # Clear existing widgets
         for i in reversed(range(self.grid.count())):
             item = self.grid.itemAt(i)
             if item and item.widget():
@@ -176,7 +208,6 @@ class ResultsArea(QWidget):
         start = (self.current_page - 1) * self.page_size
         sub = data[start: start + self.page_size]
 
-        # Add cards to grid with responsive layout
         for idx, detail in enumerate(sub):
             row = idx // self.max_columns
             col = idx % self.max_columns
@@ -185,10 +216,8 @@ class ResultsArea(QWidget):
             card.summaryRequested.connect(self.summaryRequested)
             card.viewCvRequested.connect(self.viewCvRequested)
             
-            # Add card to grid
             self.grid.addWidget(card, row, col)
 
-        # Update pagination and showing label
         if total:
             first = start + 1
             last = start + len(sub)
@@ -201,45 +230,21 @@ class ResultsArea(QWidget):
         self.pagination.show()
 
     def _on_page_changed(self, page: int):
-        """Handle page change event"""
         self.current_page = page
         self._refresh()
 
     def resizeEvent(self, event):
-        """Handle window resize to update responsive layout"""
         super().resizeEvent(event)
         
-        # Recalculate columns based on new size
-        if self.parent():
-            parent_width = self.parent().width()
+        if hasattr(self, '_resize_timer'):
+            self._resize_timer.stop()
         else:
-            screen = QApplication.primaryScreen()
-            parent_width = screen.availableGeometry().width()
+            self._resize_timer = QTimer()
+            self._resize_timer.setSingleShot(True)
+            self._resize_timer.timeout.connect(self._calculate_layout)
         
-        # Update max columns based on current width
-        old_columns = self.max_columns
-        
-        if parent_width >= 1920:
-            self.max_columns = 5
-        elif parent_width >= 1600:
-            self.max_columns = 4
-        elif parent_width >= 1200:
-            self.max_columns = 3
-        elif parent_width >= 800:
-            self.max_columns = 2
-        else:
-            self.max_columns = 1
-        
-        # Update page size and refresh if columns changed
-        if old_columns != self.max_columns:
-            self.page_size = self.max_columns * 2
-            # Adjust current page to maintain roughly the same position
-            if hasattr(self, '_results') and self._results:
-                current_item = (self.current_page - 1) * (old_columns * 2)
-                self.current_page = max(1, (current_item // self.page_size) + 1)
-                self._refresh()
-        
-        # Update grid spacing
-        spacing = max(12, int(parent_width / 120))
-        self.grid.setHorizontalSpacing(spacing)
-        self.grid.setVerticalSpacing(spacing)
+        self._resize_timer.start(100)
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        QTimer.singleShot(50, self._calculate_layout)
