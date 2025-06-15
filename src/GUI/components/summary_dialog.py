@@ -1,14 +1,14 @@
 # File: src/GUI/components/summary_dialog.py
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QGroupBox, QLabel, QPushButton, 
-    QFrame, QScrollArea, QWidget, QComboBox
+    QFrame, QScrollArea, QWidget, QComboBox, QSizePolicy
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 import os
 
 class SummaryDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, profile: dict, detail_data: dict, parent=None):
         super().__init__(parent)
         self.setObjectName("SummaryDialog")
         self.setWindowTitle("CV Summary")
@@ -32,12 +32,10 @@ class SummaryDialog(QDialog):
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main.addWidget(title_label)
 
-        profile = {
-            "name": "Farhan",
-            "birthdate": "05-19-2025",
-            "address": "Masjid Salman ITB",
-            "phone": "0812 3456 7890"
-        }
+        name = f"{profile.get('first_name','')} {profile.get('last_name','')}".strip()
+        birthdate = profile.get('date_of_birth', '')
+        address = profile.get('address', '')
+        phone = profile.get('phone_number', '')
         
         header = QGroupBox("Personal Information")
         header.setObjectName("profileGroup")
@@ -46,109 +44,136 @@ class SummaryDialog(QDialog):
         hlay.setSpacing(12)
         hlay.setContentsMargins(15, 25, 15, 15)
         
-        name_label = QLabel(f"👤 <b>{profile['name']}</b>")
+        name_label = QLabel(f"👤 <b>{name}</b>")
         name_label.setObjectName("nameLabel")
         hlay.addWidget(name_label)
         
         info_items = [
-            ("🎂", "Birthdate", profile['birthdate']),
-            ("📍", "Address", profile['address']),
-            ("📞", "Phone", profile['phone'])
+            ("🎂", "Birthdate", birthdate),
+            ("📍", "Address", address),
+            ("📞", "Phone", phone)
         ]
         
         for icon, label, value in info_items:
-            info_label = QLabel(f"{icon} <b>{label}:</b> {value}")
-            info_label.setObjectName("profileInfoLabel")
-            hlay.addWidget(info_label)
+            if value:
+                info_label = QLabel(f"{icon} <b>{label}:</b> {value}")
+                info_label.setObjectName("profileInfoLabel")
+                hlay.addWidget(info_label)
         
         main.addWidget(header)
 
-        skills = ["React", "Express", "HTML", "JavaScript", "Python", "Node.js"]
-        sk_group = QGroupBox("Technical Skills")
-        sk_group.setObjectName("skillsGroup")
+        summary = detail_data.get("Summary", {}).get("details", "")
+        if summary:
+            summary_group = QGroupBox("Summary")
+            summary_group.setObjectName("summaryGroup")
+            
+            summary_layout = QVBoxLayout(summary_group)
+            summary_layout.setSpacing(8)
+            summary_layout.setContentsMargins(15, 25, 15, 15)
+            
+            summary_label = QLabel(summary)
+            summary_label.setObjectName("summaryLabel")
+            summary_label.setWordWrap(True)
+            summary_layout.addWidget(summary_label)
+            
+            main.addWidget(summary_group)
 
-        sk_v = QVBoxLayout(sk_group)
-        sk_v.setSpacing(8)
-        sk_v.setContentsMargins(15, 25, 15, 15)
+        skills = detail_data.get("Skills", [])
+        if skills:
+            sk_group = QGroupBox("Technical Skills")
+            sk_group.setObjectName("skillsGroup")
 
-        for skill in skills:
-            skill_label = QLabel(f"• {skill}")
-            skill_label.setObjectName("skillLabel")
-            skill_label.setContentsMargins(5, 2, 5, 2)
-            sk_v.addWidget(skill_label)
+            sk_v = QVBoxLayout(sk_group)
+            sk_v.setSpacing(8)
+            sk_v.setContentsMargins(15, 25, 15, 15)
 
-        sk_v.addStretch()
-        main.addWidget(sk_group)
+            for skill in skills:
+                skill_label = QLabel(f"• {skill}")
+                skill_label.setObjectName("skillLabel")
+                skill_label.setContentsMargins(5, 2, 5, 2)
+                sk_v.addWidget(skill_label)
 
-        jobs = [
-            ("CTO", "2003–2004", "TechCorp Inc.", "Led technology strategy and team of 15+ developers"),
-            ("Lead Developer", "2005–2008", "Innova Solutions", "Architected scalable web applications using modern frameworks")
-        ]
-        
-        job_group = QGroupBox("Professional Experience")
-        job_group.setObjectName("experienceGroup")
-        
-        job_v = QVBoxLayout(job_group)
-        job_v.setSpacing(15)
-        job_v.setContentsMargins(15, 25, 15, 15)
-        
-        for title, years, company, description in jobs:
-            job_card = QFrame()
-            job_card.setObjectName("jobCard")
-            
-            job_layout = QVBoxLayout(job_card)
-            job_layout.setSpacing(6)
-            
-            title_label = QLabel(f"<b>{title}</b> at <b>{company}</b>")
-            title_label.setObjectName("jobTitleLabel")
-            job_layout.addWidget(title_label)
-            
-            years_label = QLabel(f"📅 {years}")
-            years_label.setObjectName("jobYearsLabel")
-            job_layout.addWidget(years_label)
-            
-            desc_label = QLabel(description)
-            desc_label.setObjectName("jobDescLabel")
-            desc_label.setWordWrap(True)
-            job_layout.addWidget(desc_label)
-            
-            job_v.addWidget(job_card)
-        
-        main.addWidget(job_group)
+            sk_v.addStretch()
+            main.addWidget(sk_group)
 
-        edus = [
-            ("Informatics Engineering", "Institut Teknologi Bandung", "2022–2026", "Bachelor's Degree")
-        ]
-        
-        edu_group = QGroupBox("Education")
-        edu_group.setObjectName("educationGroup")
-        
-        edu_v = QVBoxLayout(edu_group)
-        edu_v.setSpacing(12)
-        edu_v.setContentsMargins(15, 25, 15, 15)
-        
-        for program, institution, years, degree in edus:
-            edu_card = QFrame()
-            edu_card.setObjectName("eduCard")
+        jobs = detail_data.get("Experience", [])
+        if jobs:
+            job_group = QGroupBox("Professional Experience")
+            job_group.setObjectName("experienceGroup")
             
-            edu_layout = QVBoxLayout(edu_card)
-            edu_layout.setSpacing(6)
+            job_v = QVBoxLayout(job_group)
+            job_v.setSpacing(15)
+            job_v.setContentsMargins(15, 25, 15, 15)
             
-            program_label = QLabel(f"<b>{program}</b> ({degree})")
-            program_label.setObjectName("eduProgramLabel")
-            edu_layout.addWidget(program_label)
+            for job in jobs:
+                job_card = QFrame()
+                job_card.setObjectName("jobCard")
+                
+                job_layout = QVBoxLayout(job_card)
+                job_layout.setSpacing(6)
+                
+                role = job.get("role", "")
+                interval = job.get("interval", "")
+                details = job.get("details", "")
+                
+                if role:
+                    title_label = QLabel(f"<b>{role}</b>")
+                    title_label.setObjectName("jobTitleLabel")
+                    job_layout.addWidget(title_label)
+                
+                if interval:
+                    years_label = QLabel(f"📅 {interval}")
+                    years_label.setObjectName("jobYearsLabel")
+                    job_layout.addWidget(years_label)
+                
+                if details:
+                    desc_label = QLabel(details)
+                    desc_label.setObjectName("jobDescLabel")
+                    desc_label.setWordWrap(True)
+                    job_layout.addWidget(desc_label)
+                
+                job_v.addWidget(job_card)
             
-            inst_label = QLabel(f"🏫 {institution}")
-            inst_label.setObjectName("eduInstLabel")
-            edu_layout.addWidget(inst_label)
+            main.addWidget(job_group)
+
+        edus = detail_data.get("Education", [])
+        if edus:
+            edu_group = QGroupBox("Education")
+            edu_group.setObjectName("educationGroup")
             
-            years_label = QLabel(f"📅 {years}")
-            years_label.setObjectName("eduYearsLabel")
-            edu_layout.addWidget(years_label)
+            edu_v = QVBoxLayout(edu_group)
+            edu_v.setSpacing(12)
+            edu_v.setContentsMargins(15, 25, 15, 15)
             
-            edu_v.addWidget(edu_card)
-        
-        main.addWidget(edu_group)
+            for edu in edus:
+                edu_card = QFrame()
+                edu_card.setObjectName("eduCard")
+                
+                edu_layout = QVBoxLayout(edu_card)
+                edu_layout.setSpacing(6)
+                
+                degree = edu.get("degree", "")
+                school = edu.get("school", "")
+                year = edu.get("year", "")
+                
+                if degree:
+                    program_label = QLabel(f"<b>{degree}</b>")
+                    program_label.setObjectName("eduProgramLabel")
+                    edu_layout.addWidget(program_label)
+                
+                if school:
+                    inst_label = QLabel(f"🏫 {school}")
+                    inst_label.setObjectName("eduInstLabel")
+                    edu_layout.addWidget(inst_label)
+                
+                if year:
+                    years_label = QLabel(f"📅 {year}")
+                    years_label.setObjectName("eduYearsLabel")
+                    edu_layout.addWidget(years_label)
+                
+                edu_v.addWidget(edu_card)
+            
+            main.addWidget(edu_group)
 
         dialog_layout = QVBoxLayout(self)
         dialog_layout.setContentsMargins(0, 0, 0, 20)

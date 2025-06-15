@@ -9,6 +9,7 @@ from src.algo.bm import BoyerMoore
 from src.algo.levenshtein import Levenshtein
 from src.db.models import ApplicantProfile, ApplicationDetail
 from src.gui.appState import AppState
+from src.gui.components.summary_dialog import SummaryDialog
 
 from PyQt6.QtGui     import QDesktopServices
 from PyQt6.QtCore    import QUrl
@@ -93,9 +94,16 @@ class MainController:
             fuzzy = dummy_fuzzy[:top_n]
             self.results_area.show_results(fuzzy, exact_ms=exec_time_exact, fuzzy_ms=exec_time_fuzzy)
 
+    def show_summary(self, detail_id: int):
+        detail = ApplicationDetail.get_applicant(self.app_state.db, detail_id)
 
-    def show_summary(self, applicant_id: int):
-        print(f"Show summary for ID {applicant_id}")
+        print(f"Show summary for ID {detail['applicant_id']}")
+
+        summary = self.app_state.data_manager.get_extracted_texts("raw")
+        det = summary.get(detail_id, {})
+
+        dialog = SummaryDialog(detail, det)
+        dialog.exec()
 
     def open_cv(self, detail_id: int):
         print(f"Open CV for ID {detail_id}")
