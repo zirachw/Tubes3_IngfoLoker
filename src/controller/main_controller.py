@@ -7,6 +7,7 @@ from src.db.manager import DataManager
 from src.algo.kmp import KMP
 from src.algo.bm import BoyerMoore
 from src.algo.levenshtein import Levenshtein
+from src.algo.ahocorasick import AhoCorasick
 from src.db.models import ApplicantProfile, ApplicationDetail
 from src.gui.appState import AppState
 from src.gui.components.summary_dialog import SummaryDialog
@@ -23,16 +24,24 @@ class MainController:
     def search(self, keywords, algorithm, top_n):
         Detail = namedtuple("Detail", ["id", "name", "matches"])
         extracted_texts = self.app_state.data_manager.get_extracted_texts("clean")
-        dummy_exact = []
+        exact_res = []
 
         algorithm = algorithm.lower()
 
         start_exact = time.time()
 
         if algorithm == "aho-corasick":
-            # matcher = AhoCorasick(keywords)
-            # matches = matcher.search(text)
-            pass
+            matcher = AhoCorasick(keywords)
+            for detail_id, text in extracted_texts.items():
+                matches = matcher.search(text)
+                if matches:
+                    applicant = ApplicationDetail.get_applicant(self.app_state.db, detail_id)
+                    if not applicant:
+                        print(f"[Error] Applicant with {detail_id} detail_id not found.")
+                        continue
+                    applicant_name = f"{applicant['first_name']} {applicant['last_name']}"
+                    exact_res.append(Detail(id=detail_id, name=applicant_name, matches=matches))
+
         else:
             if algorithm == "kmp":
                 matcher = KMP("", "")
@@ -40,34 +49,37 @@ class MainController:
                 matcher = BoyerMoore("", "")
             else:
                 raise ValueError(f"Unsupported algorithm: {algorithm}")
-        for detail_id, text in extracted_texts.items():
-            matches = {}
-            matcher.text = text
+            
+            for detail_id, text in extracted_texts.items():
+                matches = {}
+                matcher.text = text
 
-            for keyword in keywords:
-                matcher.pattern = keyword.lower()
-                res, _ = matcher.search()
-                if res:
-                    matches[keyword] = res
+                for keyword in keywords:
+                    matcher.pattern = keyword.lower()
+                    res, _ = matcher.search()
+                    if res:
+                        matches[keyword] = res
 
-            if matches:
-                applicant = ApplicationDetail.get_applicant(self.app_state.db, detail_id)
-                if not applicant:
-                    print(f"[Error] Applicant with {detail_id} detail_id not found.")
-                    continue
+                if matches:
+                    applicant = ApplicationDetail.get_applicant(self.app_state.db, detail_id)
+                    if not applicant:
+                        print(f"[Error] Applicant with {detail_id} detail_id not found.")
+                        continue
 
-                applicant_name = f"{applicant['first_name']} {applicant['last_name']}"
-                dummy_exact.append(Detail(id=detail_id, name=applicant_name, matches=matches))
+                    applicant_name = f"{applicant['first_name']} {applicant['last_name']}"
+                    exact_res.append(Detail(id=detail_id, name=applicant_name, matches=matches))
 
         end_exact = time.time()
         exec_time_exact = int((end_exact - start_exact) * 1000)
 
-        exact = dummy_exact[:top_n]
-        if exact:
-            self.results_area.show_results(exact, exact_ms=exec_time_exact, fuzzy_ms=0)
+        exact_res.sort(key=lambda detail: sum(detail.matches.values()), reverse=True)
+        exact_top = exact_res[:top_n]
+        
+        if exact_top:
+            self.results_area.show_results(exact_top, exact_ms=exec_time_exact, fuzzy_ms=0)
         else:
             start_fuzzy = time.time()
-            dummy_fuzzy = []
+            fuzzy_res = []
             
             for detail_id, text in extracted_texts.items():
                 fuzzy_matches = {}
@@ -87,12 +99,13 @@ class MainController:
                         print(f"[Error] Applicant with {detail_id} detail_id not found.")
                         continue
                     applicant_name = f"{applicant['first_name']} {applicant['last_name']}"
-                    dummy_fuzzy.append(Detail(id=detail_id, name=applicant_name, matches=fuzzy_matches))
+                    fuzzy_res.append(Detail(id=detail_id, name=applicant_name, matches=fuzzy_matches))
             
             end_fuzzy = time.time()
             exec_time_fuzzy = int((end_fuzzy - start_fuzzy) * 1000)
-            fuzzy = dummy_fuzzy[:top_n]
-            self.results_area.show_results(fuzzy, exact_ms=exec_time_exact, fuzzy_ms=exec_time_fuzzy)
+            fuzzy_res.sort(key=lambda detail: sum(detail.matches.values()), reverse=True)
+            fuzzy_top = fuzzy_res[:top_n]
+            self.results_area.show_results(fuzzy_top, exact_ms=exec_time_exact, fuzzy_ms=exec_time_fuzzy)
 
     def show_summary(self, detail_id: int):
         detail = ApplicationDetail.get_applicant(self.app_state.db, detail_id)
