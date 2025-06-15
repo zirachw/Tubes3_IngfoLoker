@@ -29,19 +29,34 @@ class Levenshtein:
         return self.mat[len(b)][len(a)]
 
     def compute_similarity(self, threshold: float = 80.0):
-
         pattern_words = self.pattern.split()
         text_words = self.text.split()
         window_size = len(pattern_words)
-        best_similarity = 0.0
-
+        matches = []
+        
         for i in range(len(text_words) - window_size + 1):
             window_str = ' '.join(text_words[i:i + window_size])
             distance = self.compute_lev_distance(self.pattern, window_str)
             max_len = max(len(self.pattern), len(window_str))
             similarity = (1 - distance / max_len) * 100
-
-            if similarity > best_similarity:
-                best_similarity = similarity
-
-        return best_similarity >= threshold, best_similarity
+            
+            if similarity >= threshold:
+                char_start = len(' '.join(text_words[:i]))
+                if i > 0:
+                    char_start += 1
+                matches.append((char_start, window_str, round(similarity, 2)))
+        
+        return matches
+    
+    def search_fuzzy_matches(self, threshold: float = 80.0):
+        match_details = self.compute_similarity(threshold)
+        total_count = len(match_details)
+        
+        matched_strings_dict = {}
+        for match in match_details:
+            matched_string = match[1]
+            if matched_string in matched_strings_dict:
+                matched_strings_dict[matched_string] += 1
+            else:
+                matched_strings_dict[matched_string] = 1
+        return total_count > 0, total_count, matched_strings_dict
