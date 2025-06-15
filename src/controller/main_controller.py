@@ -136,7 +136,9 @@ class MainController:
             print(f"[Error] CV for detail_id {detail_id} not found.")
             return
         
-        path = Path(self.app_state.data_folder) / pdf_name
+        filename = Path(pdf_name).name
+
+        path = Path(self.app_state.data_folder) / filename
         abs_path = os.path.abspath(path)
         
         url = QUrl.fromLocalFile(abs_path)
