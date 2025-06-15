@@ -114,7 +114,11 @@ class MainController:
         Detail = namedtuple("Detail", ["id", "name", "matches"])
         id = ApplicationDetail.get_applicant_id(self.app_state.db, detail_id)
 
-        applicant = self.applicants[id - 1]
+        if self.app_state.enable_encryption:
+            applicant = self.applicants[id - 1]
+
+        else:
+            applicant = ApplicationDetail.get_applicant(self.app_state.db, detail_id)
 
         if not applicant:
             print(f"[Error] Applicant with {detail_id} detail_id not found.")
