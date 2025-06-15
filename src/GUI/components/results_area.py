@@ -14,10 +14,11 @@ class ResultsArea(QWidget):
     summaryRequested = pyqtSignal(int)
     viewCvRequested  = pyqtSignal(int)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, app_state: AppState = None):
         super().__init__(parent)
         self.setObjectName("resultsArea")
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+        self.app_state = app_state
 
         self.max_columns = 3
         self.max_rows = 2
@@ -39,11 +40,7 @@ class ResultsArea(QWidget):
         self._build_ui()
         self._calculate_layout()
 
-        data_path = Path(os.getenv("DATA_FOLDER"))
-        if not data_path.exists():
-            self.count = 0
-        else:
-            self.count = len(list(data_path.glob("*.pdf")))
+        self.count = len(self.app_state.data_manager.pdf_files)
 
         QTimer.singleShot(100, self._calculate_layout)
 

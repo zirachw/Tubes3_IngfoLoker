@@ -5,6 +5,7 @@ from src.utils.seeder import ApplicantSeeder
 from src.db.manager import DataManager
 from src.crypto.FF3 import FF3Cipher
 from src.utils.regex import Summary
+from src.utils.setup import SetupPDFData
 
 class AppState:
     """Main state class that orchestrates the ATS setup workflow."""
@@ -17,6 +18,7 @@ class AppState:
         self.data_manager = DataManager(self.db, self.data_folder)
         self.applicant_count = int(os.getenv('APPLICANT_COUNT', 10))
         self.enable_encryption = os.getenv('ENABLE_FF3', 'false').lower() == 'true'
+        self.enable_demo = os.getenv('ENABLE_DEMO', 'false').lower() == 'true'
         self.cipher = FF3Cipher(os.getenv('FF3_KEY'), os.getenv('FF3_TWEAK')) if self.enable_encryption else None
 
     def run(self):
@@ -33,10 +35,13 @@ class AppState:
             print("[Log] - Starting ATS setup...")
             
             self.data_manager.clear_temp()
-            seeder = ApplicantSeeder(self.db, self.applicant_count)
-            seeder.seed()
+            SetupPDFData().tidy()
+
+            if not self.enable_demo:
+                seeder = ApplicantSeeder(self.db, self.applicant_count)
+                seeder.seed()
         
-            self.data_manager.bind_pdf()
+            self.data_manager.extract_pdf()
             
             if self.enable_encryption and self.cipher:
                 print("[Log] - Encrypting sensitive data...")
@@ -61,6 +66,9 @@ class AppState:
 
         except Exception as e:
             print(f"[Error] - During setup: {e}")
+            import traceback
+            traceback.print_exc()
+            print("[Error] - Setup failed, please check the logs for details.")
             raise
 
     def end(self):

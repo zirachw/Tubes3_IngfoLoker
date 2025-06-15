@@ -47,7 +47,7 @@ class MainWindow(QMainWindow):
         self.search_bar = SearchBar()
         vlay.addWidget(self.search_bar)
 
-        self.results_area = ResultsArea()
+        self.results_area = ResultsArea(self, self.app_state)
         self.results_area.setObjectName("resultsArea")
         vlay.addWidget(self.results_area, 1)  # Give results area stretch factor
 

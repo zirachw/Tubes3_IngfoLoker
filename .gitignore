@@ -60,5 +60,6 @@ htmlcov/
 .uv_cache/
 
 # Data
-data/
+data/*.pdf
+data/*.json
 temp/

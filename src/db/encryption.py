@@ -27,7 +27,6 @@ class EncryptionManager:
                 
                 encrypted_first_name = cipher.encrypt(applicant['first_name'], field_type='name') if applicant['first_name'] else None
                 encrypted_last_name = cipher.encrypt(applicant['last_name'], field_type='name') if applicant['last_name'] else None
-                encrypted_date_of_birth = cipher.encrypt(applicant['date_of_birth'], field_type='date') if applicant['date_of_birth'] else None
                 encrypted_address = cipher.encrypt(applicant['address'], field_type='address') if applicant['address'] else None
                 encrypted_phone_number = cipher.encrypt(applicant['phone_number'], field_type='phone') if applicant['phone_number'] else None
                 
@@ -41,7 +40,7 @@ class EncryptionManager:
                 db.execute_update(update_query, (
                     encrypted_first_name,
                     encrypted_last_name,
-                    encrypted_date_of_birth,
+                    applicant['date_of_birth'],
                     encrypted_address,
                     encrypted_phone_number,
                     applicant_id

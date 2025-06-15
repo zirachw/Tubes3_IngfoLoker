@@ -21,8 +21,9 @@ class DataManager:
 
         self.db = db
         self.data_folder = data_folder
-        self.pdf_files = self.get_pdf_files()
         self.enable_save = os.getenv('ENABLE_SAVE', 'false').lower() == 'true'
+        self.enable_demo = os.getenv('ENABLE_DEMO', 'false').lower() == 'true'
+        self.pdf_files = self.get_pdf_files()
         self.extracted_raw_texts = {}    # Dict[int, str] - detail_id -> raw_text
         self.extracted_clean_texts = {}  # Dict[int, str] - detail_id -> clean_text
 
@@ -33,7 +34,29 @@ class DataManager:
             list: List of PDF filenames found in data folder
         """
 
-        data_path = Path(self.data_folder)
+        if not self.enable_demo:
+            data_path = Path(self.data_folder)
+
+        else:
+            query = "SELECT cv_path FROM ApplicationDetail"
+            result = self.db.execute_query(query)
+            files = []
+
+            if not result:
+                print("[Error] - No PDF files found in the database")
+                return []
+
+            for row in result:
+                
+                if 'cv_path' in row:
+                    pdf_file = row['cv_path']
+
+                    if pdf_file.endswith('.pdf'):
+                        pdf_file = Path(pdf_file).name
+                        files.append(pdf_file)
+            
+            return files
+            
         if not data_path.exists():
             return []
         
@@ -85,7 +108,7 @@ class DataManager:
         
         return filtered_first_line
     
-    def bind_pdf(self) -> None:
+    def extract_pdf(self) -> None:
         """Bind text from all PDF files and determine job roles.
         
         Populates roles list and extracted text dictionaries mapped by detail_id.
@@ -120,24 +143,23 @@ class DataManager:
                     for page in doc:
                         full_text += page.get_text()
                     
-                    role_display = self.extract_first_line_role(full_text)
-                    applicant = random.choice(ApplicantProfile.get_all(self.db))
-                    role = role_display if role_display else random.choice(["Software Engineer", 
-                                                                            "Data Scientist", 
-                                                                            "Product Manager", 
-                                                                            "UX Designer", 
-                                                                            "Business Analyst"])
-                    
-                    ApplicationDetail.create(
-                        self.db,
-                        applicant_id=applicant['applicant_id'],
-                        application_role=role,
-                        cv_path=pdf_file
-                    )
+                    if not self.enable_demo:
+                        self.bind_pdf(full_text, pdf_file)
 
                 filtered_text = self.filter_text(full_text)
-                self.extracted_raw_texts[idx + 1] = full_text
-                self.extracted_clean_texts[idx + 1] = filtered_text
+                if not self.enable_demo:
+                    self.extracted_raw_texts[idx + 1] = full_text
+                    self.extracted_clean_texts[idx + 1] = filtered_text
+
+                else:
+                    query = "SELECT detail_id FROM ApplicationDetail WHERE cv_path LIKE %s"
+                    pattern = f"%{pdf_file}"
+                    detail_id = self.db.execute_query(query, (pattern,))
+
+                    if detail_id:
+                        detail_id = detail_id[0]['detail_id']
+                        self.extracted_raw_texts[detail_id] = full_text
+                        self.extracted_clean_texts[detail_id] = filtered_text
 
                 if self.enable_save:
                     pdf_name = pdf_file.rsplit('.', 1)[0]
@@ -162,6 +184,28 @@ class DataManager:
                 print(f"[Error] - Extracting {pdf_file}: {e}")
                 self.extracted_raw_texts[idx + 1] = ""
                 self.extracted_clean_texts[idx + 1] = ""
+
+    def bind_pdf(self, full_text: str, pdf_file: str) -> None:
+        """Bind extracted text to the database.
+        
+        This method should be implemented to save the extracted texts
+        into the database, associating them with the appropriate detail_id.
+        """
+
+        role_display = self.extract_first_line_role(full_text)
+        applicant = random.choice(ApplicantProfile.get_all(self.db))
+        role = role_display if role_display else random.choice(["Software Engineer", 
+                                                                "Data Scientist", 
+                                                                "Product Manager", 
+                                                                "UX Designer", 
+                                                                "Business Analyst"])
+        
+        ApplicationDetail.create(
+            self.db,
+            applicant_id=applicant['applicant_id'],
+            application_role=role,
+            cv_path=pdf_file
+        )
 
     def get_extracted_texts(self, text_type: str) -> Dict[int, str]:
         """Get all extracted text content mapped by detail_id.

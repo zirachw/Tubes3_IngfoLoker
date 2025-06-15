@@ -126,7 +126,7 @@ class ApplicationDetail:
         return {
             'detail_id': detail['detail_id'],
             'applicant_id': detail['applicant_id'],
-            'application_role': detail['application_role'],
+            'application_role': detail['application_role'] if detail['application_role'] else "Unknown",
             'cv_path': detail['cv_path']
         }
     
