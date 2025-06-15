@@ -7,8 +7,6 @@ from src.gui.components.results_area import ResultsArea
 from src.controller.main_controller import MainController
 
 class MainWindow(QMainWindow):
-    """Main application window that contains the search bar and results area."""
-
     def __init__(self, app_state: AppState):
         super().__init__()
 
@@ -16,25 +14,22 @@ class MainWindow(QMainWindow):
         self.setObjectName("MainWindow")
         self.setWindowTitle("IngfoLoker - Job Applicant Search")
 
-        # Set responsive window size based on screen
         screen = QApplication.primaryScreen()
         geom = screen.availableGeometry()
         
-        # Use percentage of screen size for responsive design
-        width = int(geom.width() * 0.9)  # 90% of screen width
-        height = int(geom.height() * 0.9)  # 90% of screen height
-        x = (geom.width() - width) // 2   # Center horizontally
-        y = (geom.height() - height) // 2  # Center vertically
+        width = int(geom.width() * 0.9)
+        height = int(geom.height() * 0.9) 
+        x = (geom.width() - width) // 2
+        y = (geom.height() - height) // 2
         
         self.setGeometry(x, y, width, height)
-        self.setMinimumSize(800, 600)  # Minimum size for usability
+        self.setMinimumSize(800, 600)
 
         central = QWidget()
         central.setObjectName("centralWidget")
         vlay = QVBoxLayout(central)
         
-        # Responsive margins based on window width
-        margin = max(20, int(width * 0.05))  # 5% of width, minimum 20px
+        margin = max(20, int(width * 0.05))
         vlay.setContentsMargins(margin, 16, margin, 16)
         vlay.setSpacing(16)
         self.setCentralWidget(central)
@@ -49,7 +44,7 @@ class MainWindow(QMainWindow):
 
         self.results_area = ResultsArea(self, self.app_state)
         self.results_area.setObjectName("resultsArea")
-        vlay.addWidget(self.results_area, 1)  # Give results area stretch factor
+        vlay.addWidget(self.results_area, 1)
 
         self.controller = MainController(self, self.results_area, self.app_state)
 
@@ -58,10 +53,8 @@ class MainWindow(QMainWindow):
         self.results_area.viewCvRequested.connect(self.controller.open_cv)
 
     def resizeEvent(self, event):
-        """Handle window resize to update responsive elements"""
         super().resizeEvent(event)
         
-        # Update margins when window is resized
         width = self.width()
         margin = max(20, int(width * 0.05))
         
