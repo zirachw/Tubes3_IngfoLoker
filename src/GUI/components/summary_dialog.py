@@ -1,4 +1,3 @@
-# File: src/GUI/components/summary_dialog.py
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QGroupBox, QLabel, QPushButton, 
     QFrame, QScrollArea, QWidget, QComboBox, QSizePolicy
@@ -12,8 +11,15 @@ class SummaryDialog(QDialog):
         super().__init__(parent)
         self.setObjectName("SummaryDialog")
         self.setWindowTitle("CV Summary")
-        self.resize(700, 600)
         self.setModal(True)
+
+        if parent is not None:
+            # ambil geometri parent
+            pg = parent.geometry()
+            self.setGeometry(pg.x(), pg.y(), pg.width(), pg.height())
+        else:
+            # fallback jika tanpa parent
+            self.resize(700, 600)
 
         scroll_area = QScrollArea(self)
         scroll_area.setObjectName("summaryScrollArea")
@@ -24,6 +30,7 @@ class SummaryDialog(QDialog):
         scroll_area.setWidget(content_widget)
         
         main = QVBoxLayout(content_widget)
+        main.setObjectName("summaryMainLayout")
         main.setSpacing(20)
         main.setContentsMargins(30, 30, 30, 20)
 
@@ -181,6 +188,7 @@ class SummaryDialog(QDialog):
 
         button_container = QWidget()
         button_layout = QHBoxLayout(button_container)
+        button_layout.setObjectName("summaryButtonLayout")
         button_layout.setContentsMargins(30, 10, 30, 10)
         
         btn_close = QPushButton("Close")

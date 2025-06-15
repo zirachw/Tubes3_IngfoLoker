@@ -124,7 +124,7 @@ class MainController:
         summary = self.app_state.data_manager.get_extracted_texts("raw")
         det = summary.get(detail_id, {})
 
-        dialog = SummaryDialog(detail, det)
+        dialog = SummaryDialog(detail, det, self.parent)
         dialog.exec()
 
     def open_cv(self, detail_id: int):

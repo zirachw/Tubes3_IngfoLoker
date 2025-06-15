@@ -51,6 +51,7 @@ class SearchBar(QWidget):
         row.addWidget(self.top_n)
 
         self.btn_search = QPushButton("Search")
+        self.btn_search.setObjectName("searchButton")
         self.btn_search.clicked.connect(self._on_search)
         row.addWidget(self.btn_search)
 
