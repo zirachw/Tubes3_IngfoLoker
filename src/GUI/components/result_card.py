@@ -96,7 +96,7 @@ class ResultCard(QWidget):
     def _create_content(self, layout):
         content_font_size = max(10, int(self.card_width / 32))
         
-        matched_label = QLabel("Matched Keywords:")
+        matched_label = QLabel("Found Keywords:")
         matched_label.setObjectName("matchedLabel")
         matched_label.setFont(QFont("Segoe UI", content_font_size, QFont.Weight.DemiBold.value))
         layout.addWidget(matched_label)
