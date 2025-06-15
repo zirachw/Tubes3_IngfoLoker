@@ -10,6 +10,7 @@ from src.algo.levenshtein import Levenshtein
 from src.db.models import ApplicantProfile, ApplicationDetail
 from src.gui.appState import AppState
 from src.gui.components.summary_dialog import SummaryDialog
+from src.db.encryption import EncryptionManager
 
 from PyQt6.QtGui     import QDesktopServices
 from PyQt6.QtCore    import QUrl
@@ -98,6 +99,9 @@ class MainController:
         detail = ApplicationDetail.get_applicant(self.app_state.db, detail_id)
 
         print(f"Show summary for ID {detail['applicant_id']}")
+        
+        if self.app_state.enable_encryption:
+            detail = EncryptionManager.decrypt_applicant_data(detail, self.app_state.cipher)
 
         summary = self.app_state.data_manager.get_extracted_texts("raw")
         det = summary.get(detail_id, {})
