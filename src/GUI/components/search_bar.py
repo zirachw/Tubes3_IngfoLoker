@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (
     QHBoxLayout, QVBoxLayout, QButtonGroup
 )
 from PyQt6.QtCore   import Qt, pyqtSignal
+import re
 
 class SearchBar(QWidget):
     searchRequested = pyqtSignal(list, str, int)
@@ -56,14 +57,21 @@ class SearchBar(QWidget):
         row.addWidget(self.btn_search)
 
         lay.addLayout(row)
-
+ 
     def _on_search(self):
         raw_kws = self.input.text().strip()
-        kws = [k.strip() for k in raw_kws.split(',') if k.strip()]
+        
+        tokens = re.split(r'(?<!\\),', raw_kws)
+        kws = [
+            token.strip().replace('\\,', ',').replace('\\\\', '\\') 
+            for token in tokens if token.strip()
+        ]
+        
         if self.btn_kmp.isChecked():
             alg = "KMP"
         elif self.btn_bm.isChecked():
             alg = "Boyer-Moore"
         else:
             alg = "Aho-Corasick"
+            
         self.searchRequested.emit(kws, alg, self.top_n.value())
