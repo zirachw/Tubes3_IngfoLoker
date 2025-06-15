@@ -58,6 +58,7 @@ melompati bagian teks yang panjang tanpa pemeriksaan karakter per karakter
 
 ## Requirement
 - uv package
+- docker
 
 
 ## Command Run Program
@@ -105,7 +106,7 @@ ENABLE_DEMO=true
 
 
 ## Authors
-### **Kelompok "APA AJA UDAH"**
+### **Kelompok "IngfoLoker"**
 |   NIM    |                  Nama                  |
 | :------: | :-------------------------------------:|
 | 13523004 |              Razi Rachman              |
