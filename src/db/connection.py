@@ -78,6 +78,44 @@ class DatabaseConnection:
         self.execute_update("ALTER TABLE ApplicationDetail AUTO_INCREMENT = 1")
         self.execute_update("ALTER TABLE ApplicantProfile AUTO_INCREMENT = 1")
     
+    def initialize_database(self, init_sql_path: str = "init.sql") -> None:
+        """Re-initialize database by executing init.sql file.
+        
+        Args:
+            init_sql_path (str): Path to the init.sql file
+        """
+        
+        try:
+            if not os.path.exists(init_sql_path):
+                print(f"[Error] - init.sql file not found at: {init_sql_path}")
+                return
+            
+            print(f"[Log] - Initializing database from {init_sql_path}")
+            
+            with open(init_sql_path, 'r', encoding='utf-8') as file:
+                sql_content = file.read()
+            
+            connection = self.connect()
+            statements = [stmt.strip() for stmt in sql_content.split(';') if stmt.strip()]
+            
+            with connection.cursor() as cursor:
+                for statement in statements:
+                    if statement:
+                        try:
+                            cursor.execute(statement)
+                        except Exception as e:
+                            print(f"[Warning] - Failed to execute statement: {e}")
+                
+                connection.commit()
+            
+            print("[Log] - Database initialization completed successfully")
+            
+        except Exception as e:
+            print(f"[Error] - During database initialization: {e}")
+            import traceback
+            traceback.print_exc()
+            raise
+    
     def close(self) -> None:
         """Close database connection."""
 

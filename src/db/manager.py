@@ -23,7 +23,6 @@ class DataManager:
         self.data_folder = data_folder
         self.enable_save = os.getenv('ENABLE_SAVE', 'false').lower() == 'true'
         self.enable_demo = os.getenv('ENABLE_DEMO', 'false').lower() == 'true'
-        self.pdf_files = self.get_pdf_files()
         self.extracted_raw_texts = {}    # Dict[int, str] - detail_id -> raw_text
         self.extracted_clean_texts = {}  # Dict[int, str] - detail_id -> clean_text
 
@@ -113,6 +112,7 @@ class DataManager:
         
         Populates roles list and extracted text dictionaries mapped by detail_id.
         """
+        self.pdf_files = self.get_pdf_files()
         
         data_path = Path(self.data_folder)
         if not data_path.exists():
@@ -158,7 +158,16 @@ class DataManager:
 
                     if detail_id:
                         detail_id = detail_id[0]['detail_id']
+
+                        # fetch the applicant’s profile
+                        applicant = ApplicationDetail.get_applicant(self.db, detail_id)
+                        if applicant:
+                            full_name = f"{applicant['first_name']} {applicant['last_name']}"
+                            # append the name instead of prepending
+                            full_text = f"{full_text}\n\n{full_name}"
+
                         self.extracted_raw_texts[detail_id] = full_text
+                        filtered_text = self.filter_text(full_text)
                         self.extracted_clean_texts[detail_id] = filtered_text
 
                 if self.enable_save:

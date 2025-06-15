@@ -3,12 +3,9 @@ import time
 from pathlib import Path
 from collections import namedtuple
 
-from src.db.manager import DataManager
-from src.algo.kmp import KMP
-from src.algo.bm import BoyerMoore
 from src.algo.levenshtein import Levenshtein
 from src.algo.ahocorasick import AhoCorasick
-from src.db.models import ApplicantProfile, ApplicationDetail
+from src.db.models import ApplicationDetail
 from src.gui.appState import AppState
 from src.gui.components.summary_dialog import SummaryDialog
 from src.db.encryption import EncryptionManager
@@ -114,12 +111,11 @@ class MainController:
         return Detail(id=detail_id, name=name, matches=matches)
 
     def show_summary(self, detail_id: int):
-        detail = ApplicationDetail.get_applicant(self.app_state.db, detail_id)
 
-        print(f"Show summary for ID {detail['applicant_id']}")
+        detail = ApplicationDetail.get_applicant(self.app_state.db, detail_id)
         
         if self.app_state.enable_encryption:
-            detail = EncryptionManager.decrypt_applicant_data(detail, self.app_state.cipher)
+            detail = EncryptionManager.decrypt_applicant_data(detail)
 
         summary = self.app_state.data_manager.get_extracted_texts("raw")
         det = summary.get(detail_id, {})

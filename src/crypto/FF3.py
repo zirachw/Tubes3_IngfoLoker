@@ -48,10 +48,10 @@ class FF3Cipher:
     # Database field type configurations
     FIELD_CONFIGS = {
         'name': {
-            'radix': 52,    # Letters only (a-z, A-Z) = 26 + 26 = 52
+            'radix': 62,    # Letters only (a-z, A-Z) = 26 + 26 = 52
             'min_len': 1,   # Allow short names like "J"
             'max_len': 50,  # VARCHAR(50) limit
-            'alphabet': string.ascii_lowercase + string.ascii_uppercase
+            'alphabet': string.ascii_lowercase + string.ascii_uppercase + string.digits
         },
         'phone': {
             'radix': 15,    # Digits + phone symbols: 0-9, +, -, space, ( )

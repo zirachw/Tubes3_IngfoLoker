@@ -1,3 +1,4 @@
+import os
 from typing import List, Dict, Any
 from src.db.connection import DatabaseConnection
 from src.crypto.FF3 import FF3Cipher
@@ -6,13 +7,19 @@ class EncryptionManager:
     """Handles encryption and decryption of sensitive applicant data."""
     
     @staticmethod
-    def encrypt_database(db: DatabaseConnection, cipher: FF3Cipher) -> None:
+    def encrypt_database(db: DatabaseConnection) -> None:
         """Encrypt all sensitive data in ApplicantProfile table.
         
         Args:
             db (DatabaseConnection): Database connection instance
             cipher (FF3Cipher): Encryption cipher instance
         """
+
+        cipher = FF3Cipher(os.getenv('FF3_KEY'), os.getenv('FF3_TWEAK'))
+
+        if not cipher:
+            print("[Error] - FF3Cipher instance is not initialized")
+            return
         
         try:
             query = "SELECT * FROM ApplicantProfile"
@@ -50,7 +57,7 @@ class EncryptionManager:
             print(f"[Error] - During encryption: {e}")
     
     @staticmethod
-    def decrypt_applicant_data(applicant_data: Dict[str, Any], cipher: FF3Cipher) -> Dict[str, Any]:
+    def decrypt_applicant_data(applicant_data: Dict[str, Any]) -> Dict[str, Any]:
         """Decrypt applicant data for display purposes.
         
         Args:
@@ -61,6 +68,8 @@ class EncryptionManager:
             Dict[str, Any]: Decrypted applicant data
         """
 
+        cipher = FF3Cipher(os.getenv('FF3_KEY'), os.getenv('FF3_TWEAK'))
+
         decrypted_data = applicant_data.copy()
         
         try:
@@ -69,9 +78,6 @@ class EncryptionManager:
             
             if applicant_data.get('last_name'):
                 decrypted_data['last_name'] = cipher.decrypt(applicant_data['last_name'], field_type='name')
-            
-            if applicant_data.get('date_of_birth'):
-                decrypted_data['date_of_birth'] = cipher.decrypt(applicant_data['date_of_birth'], field_type='date')
             
             if applicant_data.get('address'):
                 decrypted_data['address'] = cipher.decrypt(applicant_data['address'], field_type='address')
@@ -85,7 +91,7 @@ class EncryptionManager:
         return decrypted_data
     
     @staticmethod
-    def get_decrypted_applicants(db: DatabaseConnection, cipher: FF3Cipher) -> List[Dict[str, Any]]:
+    def get_decrypted_applicants(db: DatabaseConnection) -> List[Dict[str, Any]]:
         """Retrieve all applicants with decrypted data.
         
         Args:
@@ -101,7 +107,7 @@ class EncryptionManager:
         
         decrypted_applicants = []
         for applicant in encrypted_applicants:
-            decrypted_applicant = EncryptionManager.decrypt_applicant_data(applicant, cipher)
+            decrypted_applicant = EncryptionManager.decrypt_applicant_data(applicant)
             decrypted_applicants.append(decrypted_applicant)
         
         return decrypted_applicants

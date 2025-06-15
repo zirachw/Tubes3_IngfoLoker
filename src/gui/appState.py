@@ -19,23 +19,28 @@ class AppState:
         self.applicant_count = int(os.getenv('APPLICANT_COUNT', 10))
         self.enable_encryption = os.getenv('ENABLE_FF3', 'false').lower() == 'true'
         self.enable_demo = os.getenv('ENABLE_DEMO', 'false').lower() == 'true'
-        self.cipher = FF3Cipher(os.getenv('FF3_KEY'), os.getenv('FF3_TWEAK')) if self.enable_encryption else None
 
     def run(self):
         """Execute the complete ATS setup workflow.
         
         Workflow steps:
-        1. Clear temporary files and seed applicant data
-        2. Extract PDF content and determine job roles
-        3. Bind PDFs to applicants in database
-        4. Encrypt sensitive data if enabled
+        1. Re-initialize database from init.sql (fresh start)
+        2. Clear temporary files and seed applicant data
+        3. Extract PDF content and determine job roles
+        4. Bind PDFs to applicants in database
+        5. Encrypt sensitive data if enabled
         """
 
         try:
             print("[Log] - Starting ATS setup...")
             
+            # Re-initialize database to original state (prevents double encryption)
+            if self.enable_demo:
+                print("[Log] - Re-initializing database from init.sql...")
+                self.db.initialize_database("database/init.sql")
+            
             self.data_manager.clear_temp()
-            SetupPDFData().tidy()
+            # SetupPDFData().tidy()
 
             if not self.enable_demo:
                 seeder = ApplicantSeeder(self.db, self.applicant_count)
@@ -43,9 +48,9 @@ class AppState:
         
             self.data_manager.extract_pdf()
             
-            if self.enable_encryption and self.cipher:
+            if self.enable_encryption:
                 print("[Log] - Encrypting sensitive data...")
-                EncryptionManager.encrypt_database(self.db, self.cipher)
+                EncryptionManager.encrypt_database(self.db)
             else:
                 print("[Log] - Encryption disabled - data remains in raw format")
 
